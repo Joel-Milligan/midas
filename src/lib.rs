@@ -3,7 +3,7 @@ mod players;
 use players::*;
 
 /// Result of a single round of blackjack from the perspective of the player.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub enum RoundResult {
     Blackjack,
     Win,
@@ -21,13 +21,13 @@ impl Game {
     pub fn new() -> Game {
         let dealer = Dealer::new();
         let player = Player::new();
-        
+
         Game { dealer, player }
     }
 
     pub fn round(&mut self) -> RoundResult {
         self.initial_deal();
-        
+
         while self.player.hand.value() < 21 {
             match self.player.action() {
                 PlayerAction::Hit => self.dealer.deal_to(&mut self.player),
@@ -51,11 +51,10 @@ impl Game {
             self.dealer.deal_to_self();
         }
 
-        println!("Player: {:?}", self.player.hand);
-        println!("Dealer: {:?}", self.dealer.hand);
-
         let dealer_value = self.dealer.hand.value();
         let player_value = self.player.hand.value();
+
+        self.dealer.discard(&mut self.player);
 
         if player_value == 21 {
             RoundResult::Blackjack
