@@ -51,18 +51,17 @@ impl Game {
             self.dealer.deal_to_self();
         }
 
+        let minimum_hand = self.player.hand.len() == 2;
         let dealer_value = self.dealer.hand.value();
         let player_value = self.player.hand.value();
 
-        self.dealer.discard(&mut self.player);
+        self.dealer.discard_all_hands(&mut self.player);
 
-        if player_value == 21 {
+        if player_value == 21 && minimum_hand {
             RoundResult::Blackjack
         } else if player_value > 21 {
             RoundResult::Bust
-        } else if dealer_value > 21 {
-            RoundResult::Win
-        } else if dealer_value < player_value {
+        } else if dealer_value > 21 || dealer_value < player_value {
             RoundResult::Win
         } else if dealer_value > player_value {
             RoundResult::Lose

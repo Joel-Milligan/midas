@@ -63,7 +63,7 @@ mod tests {
     }
 
     #[test]
-    fn deal_empty() {
+    fn deal_until_empty() {
         let mut shoe = Shoe::new();
 
         // Empty the shoe

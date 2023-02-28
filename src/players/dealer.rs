@@ -46,8 +46,8 @@ impl Dealer {
         }
     }
 
-    pub fn discard(&mut self, player: &mut Player) {
-        self.discards.append(&mut self.hand.discard());
-        self.discards.append(&mut player.hand.discard());
+    pub fn discard_all_hands(&mut self, player: &mut Player) {
+        self.discards.append(&mut self.hand.discard_hand());
+        self.discards.append(&mut player.hand.discard_hand());
     }
 }

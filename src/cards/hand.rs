@@ -41,11 +41,14 @@ impl Hand {
         value
     }
 
-    pub fn discard(&mut self) -> Vec<Card> {
-        // TODO refactor discard
+    pub fn discard_hand(&mut self) -> Vec<Card> {
         let ret = self.0.clone();
         self.0.clear();
         ret
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
     }
 }
 
@@ -200,7 +203,7 @@ mod tests {
     }
 
     #[test]
-    fn discard() {
+    fn discard_hand() {
         let mut hand = Hand::new();
 
         hand.add_card(Card {
@@ -208,7 +211,7 @@ mod tests {
             face: Face::Eight,
         });
 
-        let discard = hand.discard();
+        let discard = hand.discard_hand();
 
         assert_eq!(hand.0.len(), 0);
         assert_eq!(discard.len(), 1);
@@ -233,7 +236,7 @@ mod tests {
             face: Face::Ace,
         });
 
-        let discard = hand.discard();
+        let discard = hand.discard_hand();
 
         assert_eq!(hand.0.len(), 0);
         assert_eq!(discard.len(), 3);
