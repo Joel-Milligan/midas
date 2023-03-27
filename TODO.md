@@ -1,12 +1,13 @@
 # List of tasks
 
-- [x] Create unit tests
-- [ ] Refactor
-  - [ ] Dealing should be generic
-- [ ] Documentation and doc tests
-  - [ ] Modules
-  - [ ] Types
-  - [ ] APIs
-  - [ ] Everything public
-  - [ ] Important privates
+- [x] Implement money
 - [ ] Implement all player actions
+  - [x] Hit
+  - [x] Stand
+  - [x] Surrender
+  - [ ] Double
+  - [ ] Split
+- [ ] Make dealing generic
+- [ ] Configuration of rules
+- [ ] Implement AI
+- [ ] Web frontend
