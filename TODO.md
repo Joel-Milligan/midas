@@ -7,7 +7,7 @@
   - [x] Surrender
   - [ ] Double
   - [ ] Split
-- [ ] Make dealing generic
+- [ ] Make dealing generic for players and dealer
 - [ ] Configuration of rules
 - [ ] Implement AI
 - [ ] Web frontend

@@ -5,8 +5,8 @@ use midas::*;
 fn main() {
     let num_rounds = 10;
     let mut game = Game::new();
-    let mut possible_results = HashMap::new();
 
+    let mut possible_results = HashMap::new();
     possible_results.insert(RoundResult::Blackjack, 0);
     possible_results.insert(RoundResult::Win, 0);
     possible_results.insert(RoundResult::Push, 0);
