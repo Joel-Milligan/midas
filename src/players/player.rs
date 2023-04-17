@@ -6,6 +6,7 @@ use crate::cards::*;
 pub enum PlayerAction {
     Hit,
     Stand,
+    Double,
     Surrender,
 }
 
@@ -29,6 +30,7 @@ impl Player {
         let actions = [
             PlayerAction::Hit,
             PlayerAction::Stand,
+            PlayerAction::Double,
             PlayerAction::Surrender,
         ];
 
@@ -36,21 +38,24 @@ impl Player {
         actions.choose(&mut rng).unwrap().clone()
     }
 
-    pub fn bet(&mut self) -> i32 {
+    pub fn bet(&mut self) {
+        println!("WALLET: {}", self.wallet);
+
         let bet = 10;
         self.current_bet = bet;
-
-        println!("WALLET: {}", self.wallet);
-        println!("Betting {bet}...");
-
         self.wallet -= self.current_bet;
-        self.current_bet
+    }
+
+    pub fn double_bet(&mut self) {
+        self.current_bet = self.current_bet * 2;
+        self.wallet -= self.current_bet;
     }
 
     pub fn payout(&mut self, winnings: i32) {
-        println!("Winning {winnings}!");
+        println!("PAYOUT: {winnings}");
 
         self.wallet += winnings;
+        println!("WALLET: {}", self.wallet);
         self.current_bet = 0;
     }
 }

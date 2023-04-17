@@ -37,8 +37,13 @@ impl Game {
             match self.player.action() {
                 PlayerAction::Hit => self.dealer.deal_to(&mut self.player),
                 PlayerAction::Stand => break,
-                player::PlayerAction::Surrender => {
+                PlayerAction::Surrender => {
                     surrendered = true;
+                    break;
+                }
+                PlayerAction::Double => {
+                    self.dealer.deal_to(&mut self.player);
+                    self.player.double_bet();
                     break;
                 }
             }

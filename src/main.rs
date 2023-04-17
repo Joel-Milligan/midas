@@ -15,11 +15,13 @@ fn main() {
     possible_results.insert(RoundResult::Bust, 0);
 
     for round in 0..num_rounds {
-        println!("ROUND {}", round + 1);
+        println!("\nROUND {}", round + 1);
         let round = game.round();
+        println!("RESULT: {:?}", round);
         *possible_results.get_mut(&round).unwrap() += 1;
     }
 
+    println!("\nRESULTS:");
     for (result, times) in possible_results {
         let percent = (times as f32 / num_rounds as f32) * 100.0;
         println!("{result:?}: {percent:.0}");
