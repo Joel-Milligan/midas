@@ -14,13 +14,13 @@ impl Hand {
 
     pub fn value(&self) -> u8 {
         let mut value = 0;
-        let mut aces = 0;
+        let mut high_aces = 0;
 
         for card in &self.0 {
             match card.face {
                 Face::Ace => {
                     value += 11;
-                    aces += 1;
+                    high_aces += 1;
                 }
                 Face::Two => value += 2,
                 Face::Three => value += 3,
@@ -34,8 +34,9 @@ impl Hand {
             }
         }
 
-        while value > 21 && aces > 0 {
+        while value > 21 && high_aces > 0 {
             value -= 10;
+            high_aces -= 1;
         }
 
         value
