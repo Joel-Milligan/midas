@@ -5,7 +5,7 @@
   - [x] Hit
   - [x] Stand
   - [x] Surrender
-  - [ ] Double
+  - [x] Double
   - [ ] Split
 - [ ] Make dealing generic for players and dealer
 - [ ] Configuration of rules

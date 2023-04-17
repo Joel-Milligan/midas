@@ -39,23 +39,29 @@ impl Player {
     }
 
     pub fn bet(&mut self) {
-        println!("WALLET: {}", self.wallet);
-
         let bet = 10;
+        println!("WALLET: {} - {bet} (BEFORE BET - BET)", self.wallet);
         self.current_bet = bet;
         self.wallet -= self.current_bet;
     }
 
     pub fn double_bet(&mut self) {
-        self.current_bet = self.current_bet * 2;
+        println!(
+            "WALLET: {} - {} (BEFORE DOUBLE - BET)",
+            self.wallet, self.current_bet
+        );
         self.wallet -= self.current_bet;
+        self.current_bet *= 2;
     }
 
     pub fn payout(&mut self, winnings: i32) {
         println!("PAYOUT: {winnings}");
 
+        println!(
+            "WALLET: {} + {} (BEFORE PAYOUT + PAYOUT)",
+            self.wallet, winnings
+        );
         self.wallet += winnings;
-        println!("WALLET: {}", self.wallet);
         self.current_bet = 0;
     }
 }
