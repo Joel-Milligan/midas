@@ -1,5 +1,6 @@
 mod cards;
 mod players;
+use cards::*;
 use players::*;
 
 /// Result of a single round of blackjack from the perspective of the player.
@@ -15,80 +16,66 @@ pub enum RoundResult {
 
 pub struct Game {
     dealer: Dealer,
-    player: Player,
+    player: PlayerRef,
+    hands: Vec<Hand>,
 }
 
 impl Game {
-    pub fn new() -> Game {
-        let dealer = Dealer::new();
-        let player = Player::new(100);
-
-        Game { dealer, player }
+    pub fn new() -> Self {
+        Self {
+            dealer: Dealer::new(),
+            player: Box::new(Player::new(100)),
+            hands: vec![],
+        }
     }
 
-    pub fn round(&mut self) -> RoundResult {
-        let mut surrendered = false;
+    pub fn round(&mut self) {
+        // Initial Deal
+        let mut hand = Hand::new(self.player.clone());
 
-        self.player.bet();
+        self.dealer.shuffle();
+        self.dealer.deal_to(&mut hand);
+        self.dealer.deal_to_self();
+        self.dealer.deal_to(&mut hand);
+        self.dealer.deal_to_self();
 
-        self.initial_deal();
+        self.hands.push(hand);
 
-        while self.player.hand.value() < 21 {
-            match self.player.action() {
-                PlayerAction::Hit => self.dealer.deal_to(&mut self.player),
-                PlayerAction::Stand => break,
-                PlayerAction::Surrender => {
-                    surrendered = true;
-                    break;
-                }
-                PlayerAction::Double => {
-                    self.dealer.deal_to(&mut self.player);
-                    self.player.double_bet();
-                    break;
+        // Play out hands
+        for mut hand in &mut self.hands {
+            while hand.value() < 21 {
+                match hand.player.action(&hand) {
+                    PlayerAction::Hit => self.dealer.deal_to(&mut hand),
+                    PlayerAction::Double => {}
+                    PlayerAction::Stand => break,
+                    PlayerAction::Surrender => {}
                 }
             }
         }
 
-        self.finish_round(surrendered)
-    }
-
-    fn initial_deal(&mut self) {
-        self.dealer.shuffle();
-        self.dealer.deal_to(&mut self.player);
-        self.dealer.deal_to_self();
-        self.dealer.deal_to(&mut self.player);
-        self.dealer.deal_to_self();
-    }
-
-    fn finish_round(&mut self, surrendered: bool) -> RoundResult {
-        if surrendered {
-            self.player.payout(self.player.current_bet / 2);
-            return RoundResult::Surrender;
-        }
-
-        while self.dealer.hand.value() < 17 {
+        // Finish round
+        while self.dealer.value() < 17 {
             self.dealer.deal_to_self();
         }
 
-        let minimum_hand = self.player.hand.len() == 2;
-        let dealer_value = self.dealer.hand.value();
-        let player_value = self.player.hand.value();
+        let dealer_value = self.dealer.value();
+        self.dealer.discard();
 
-        self.dealer.discard_all_hands(&mut self.player);
+        for mut hand in &mut self.hands {
+            let hand_value = hand.value();
+            self.dealer.discard_hand(&mut hand);
 
-        if player_value == 21 && minimum_hand {
-            self.player.payout(self.player.current_bet * 3);
-            RoundResult::Blackjack
-        } else if player_value > 21 {
-            RoundResult::Bust
-        } else if dealer_value > 21 || dealer_value < player_value {
-            self.player.payout(self.player.current_bet * 2);
-            RoundResult::Win
-        } else if dealer_value > player_value {
-            RoundResult::Lose
-        } else {
-            self.player.payout(self.player.current_bet);
-            RoundResult::Push
+            if hand_value == 21 && hand.len() == 2 {
+                self.player.payout(hand.bet * 3);
+            } else if hand_value > 21 {
+            } else if dealer_value > 21 || dealer_value < hand_value {
+                self.player.payout(hand.bet * 2);
+            } else if dealer_value > hand_value {
+            } else {
+                self.player.payout(hand.bet);
+            }
+
+            hand.bet = 0;
         }
     }
 }

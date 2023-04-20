@@ -1,22 +1,32 @@
+use crate::players::player::PlayerRef;
+
 use super::*;
 
-#[derive(Clone)]
-pub struct Hand(Vec<Card>);
+#[derive(Default, Clone)]
+pub struct Hand {
+    pub cards: Vec<Card>,
+    pub bet: i32,
+    pub player: PlayerRef,
+}
 
 impl Hand {
-    pub fn new() -> Hand {
-        Hand(Vec::new())
+    pub fn new(player: PlayerRef) -> Self {
+        Self {
+            cards: vec![],
+            bet: 0,
+            player,
+        }
     }
 
     pub fn add_card(&mut self, card: Card) {
-        self.0.push(card);
+        self.cards.push(card);
     }
 
     pub fn value(&self) -> u8 {
         let mut value = 0;
         let mut high_aces = 0;
 
-        for card in &self.0 {
+        for card in &self.cards {
             match card.face {
                 Face::Ace => {
                     value += 11;
@@ -43,13 +53,17 @@ impl Hand {
     }
 
     pub fn discard_hand(&mut self) -> Vec<Card> {
-        let ret = self.0.clone();
-        self.0.clear();
+        let ret = self.cards.clone();
+        self.cards.clear();
         ret
     }
 
     pub fn len(&self) -> usize {
-        self.0.len()
+        self.cards.len()
+    }
+
+    pub fn bet(&mut self, bet: i32) {
+        self.bet = bet;
     }
 }
 
@@ -59,14 +73,19 @@ mod tests {
 
     #[test]
     fn new() {
-        let hand = Hand::new();
+        let hand = Hand::new(PlayerRef::default());
+        assert_eq!(hand.len(), 0);
+    }
 
-        assert_eq!(hand.0.len(), 0);
+    #[test]
+    fn default() {
+        let hand = Hand::default();
+        assert_eq!(hand.len(), 0);
     }
 
     #[test]
     fn add_card() {
-        let mut hand = Hand::new();
+        let mut hand = Hand::default();
 
         hand.add_card(Card {
             suit: Suit::Spade,
@@ -78,9 +97,9 @@ mod tests {
             face: Face::King,
         });
 
-        assert_eq!(hand.0.len(), 2);
+        assert_eq!(hand.len(), 2);
         assert_eq!(
-            hand.0,
+            hand.cards,
             vec![
                 Card {
                     suit: Suit::Spade,
@@ -97,115 +116,143 @@ mod tests {
     #[test]
     fn value() {
         // Normal
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Seven,
-            },
-        ]);
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Seven,
+                },
+            ],
+            bet: 0,
+            player: PlayerRef::default(),
+        };
 
         assert_eq!(hand.value(), 17);
 
         // Royal
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Jack,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Seven,
-            },
-        ]);
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Jack,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Seven,
+                },
+            ],
+            bet: 0,
+            player: PlayerRef::default(),
+        };
 
         assert_eq!(hand.value(), 17);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Jack,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Queen,
-            },
-        ]);
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Jack,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Queen,
+                },
+            ],
+            bet: 0,
+            player: PlayerRef::default(),
+        };
 
         assert_eq!(hand.value(), 20);
 
         // Ace
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Seven,
-            },
-        ]);
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Seven,
+                },
+            ],
+            bet: 0,
+            player: PlayerRef::default(),
+        };
 
         assert_eq!(hand.value(), 18);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Heart,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-        ]);
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+            ],
+            bet: 0,
+            player: PlayerRef::default(),
+        };
 
         assert_eq!(hand.value(), 21);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Heart,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Diamond,
-                face: Face::King,
-            },
-        ]);
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Diamond,
+                    face: Face::King,
+                },
+            ],
+            bet: 0,
+            player: PlayerRef::default(),
+        };
 
         assert_eq!(hand.value(), 21);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Club,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Diamond,
-                face: Face::Ace,
-            },
-        ]);
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Diamond,
+                    face: Face::Ace,
+                },
+            ],
+            bet: 0,
+            player: PlayerRef::default(),
+        };
 
         assert_eq!(hand.value(), 13);
     }
 
     #[test]
     fn discard_hand() {
-        let mut hand = Hand::new();
+        let mut hand = Hand::default();
 
         hand.add_card(Card {
             suit: Suit::Diamond,
@@ -214,7 +261,7 @@ mod tests {
 
         let discard = hand.discard_hand();
 
-        assert_eq!(hand.0.len(), 0);
+        assert_eq!(hand.len(), 0);
         assert_eq!(discard.len(), 1);
         assert_eq!(
             discard,
@@ -239,7 +286,7 @@ mod tests {
 
         let discard = hand.discard_hand();
 
-        assert_eq!(hand.0.len(), 0);
+        assert_eq!(hand.len(), 0);
         assert_eq!(discard.len(), 3);
         assert_eq!(
             discard,
@@ -258,5 +305,12 @@ mod tests {
                 },
             ]
         );
+    }
+
+    #[test]
+    fn bet() {
+        let mut hand = Hand::default();
+        hand.bet(10);
+        assert_eq!(hand.bet, 10);
     }
 }

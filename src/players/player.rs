@@ -10,23 +10,21 @@ pub enum PlayerAction {
     Surrender,
 }
 
-#[derive(Clone)]
+pub type PlayerRef = Box<Player>;
+
+#[derive(Default, Clone)]
 pub struct Player {
-    pub hand: Hand,
     pub wallet: i32,
-    pub current_bet: i32,
 }
 
 impl Player {
     pub fn new(starting_funds: i32) -> Player {
         Player {
-            hand: Hand::new(),
             wallet: starting_funds,
-            current_bet: 0,
         }
     }
 
-    pub fn action(&self) -> PlayerAction {
+    pub fn action(&self, _hand: &Hand) -> PlayerAction {
         let actions = [
             PlayerAction::Hit,
             PlayerAction::Stand,
@@ -38,30 +36,7 @@ impl Player {
         actions.choose(&mut rng).unwrap().clone()
     }
 
-    pub fn bet(&mut self) {
-        let bet = 10;
-        println!("WALLET: {} - {bet} (BEFORE BET - BET)", self.wallet);
-        self.current_bet = bet;
-        self.wallet -= self.current_bet;
-    }
-
-    pub fn double_bet(&mut self) {
-        println!(
-            "WALLET: {} - {} (BEFORE DOUBLE - BET)",
-            self.wallet, self.current_bet
-        );
-        self.wallet -= self.current_bet;
-        self.current_bet *= 2;
-    }
-
-    pub fn payout(&mut self, winnings: i32) {
-        println!("PAYOUT: {winnings}");
-
-        println!(
-            "WALLET: {} + {} (BEFORE PAYOUT + PAYOUT)",
-            self.wallet, winnings
-        );
-        self.wallet += winnings;
-        self.current_bet = 0;
+    pub fn payout(&mut self, payout: i32) {
+        self.wallet += payout;
     }
 }
