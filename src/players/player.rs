@@ -40,3 +40,27 @@ impl Player {
         self.wallet += payout;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default() {
+        let player = Player::default();
+        assert_eq!(player.wallet, 0);
+    }
+
+    #[test]
+    fn new() {
+        let player = Player::new(100);
+        assert_eq!(player.wallet, 100);
+    }
+
+    #[test]
+    fn payout() {
+        let mut player = Player::default();
+        player.payout(100);
+        assert_eq!(player.wallet, 100);
+    }
+}
