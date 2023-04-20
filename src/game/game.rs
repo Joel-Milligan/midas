@@ -28,10 +28,10 @@ impl Game {
         self.hands.push(hand);
 
         // Play out hands
-        for mut hand in &mut self.hands {
+        for hand in &mut self.hands {
             while hand.value() < 21 {
-                match hand.player.action(&hand) {
-                    PlayerAction::Hit => self.dealer.deal_to(&mut hand),
+                match hand.player.action(hand) {
+                    PlayerAction::Hit => self.dealer.deal_to(hand),
                     PlayerAction::Double => {}
                     PlayerAction::Stand => break,
                     PlayerAction::Surrender => {}
@@ -49,7 +49,7 @@ impl Game {
 
         for mut hand in &mut self.hands {
             let hand_value = hand.value();
-            self.dealer.discard_hand(&mut hand);
+            self.dealer.discard_hand(hand);
 
             if hand_value == 21 && hand.len() == 2 {
                 self.player.payout(hand.bet * 3);
