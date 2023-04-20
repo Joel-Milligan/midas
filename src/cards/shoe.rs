@@ -66,7 +66,6 @@ mod tests {
     fn deal_until_empty() {
         let mut shoe = Shoe::new();
 
-        // Empty the shoe
         for _ in 0..52 {
             shoe.deal();
         }

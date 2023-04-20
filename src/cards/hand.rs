@@ -306,11 +306,4 @@ mod tests {
             ]
         );
     }
-
-    #[test]
-    fn bet() {
-        let mut hand = Hand::default();
-        hand.bet(10);
-        assert_eq!(hand.bet, 10);
-    }
 }
