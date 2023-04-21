@@ -1,6 +1,4 @@
-use enum_iterator::IntoEnumIterator;
-
-#[derive(Clone, Copy, Debug, IntoEnumIterator, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Suit {
     Club,
     Diamond,
@@ -8,7 +6,7 @@ pub enum Suit {
     Spade,
 }
 
-#[derive(Clone, Copy, Debug, IntoEnumIterator, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Face {
     Ace,
     Two,
