@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 mod cards;
 mod game;
 mod players;

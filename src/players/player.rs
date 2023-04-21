@@ -1,16 +1,16 @@
 use rand::seq::SliceRandom;
 
-use crate::cards::*;
+use crate::Hand;
 
 #[derive(Clone)]
-pub enum PlayerAction {
+pub enum Action {
     Hit,
     Stand,
     Double,
     Surrender,
 }
 
-pub type PlayerRef = Box<Player>;
+pub type Ref = Box<Player>;
 
 #[derive(Default, Clone)]
 pub struct Player {
@@ -18,18 +18,21 @@ pub struct Player {
 }
 
 impl Player {
+    #[must_use]
     pub fn new(starting_funds: i32) -> Player {
         Player {
             wallet: starting_funds,
         }
     }
 
-    pub fn action(&self, _hand: &Hand) -> PlayerAction {
+    #[allow(clippy::missing_panics_doc)]
+    #[must_use]
+    pub fn action(&self, _hand: &Hand) -> Action {
         let actions = [
-            PlayerAction::Hit,
-            PlayerAction::Stand,
-            PlayerAction::Double,
-            PlayerAction::Surrender,
+            Action::Hit,
+            Action::Stand,
+            Action::Double,
+            Action::Surrender,
         ];
 
         let mut rng = rand::thread_rng();

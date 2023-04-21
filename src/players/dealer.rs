@@ -1,5 +1,6 @@
-use crate::cards::*;
+use crate::{Card, Face, Hand, Shoe};
 
+#[derive(Default)]
 pub struct Dealer {
     pub hand: Vec<Card>,
     shoe: Shoe,
@@ -7,14 +8,15 @@ pub struct Dealer {
 }
 
 impl Dealer {
+    #[must_use]
     pub fn new() -> Self {
         let hand = vec![];
         let shoe = Shoe::new();
         let discards = Vec::new();
 
         Self {
-            shoe,
             hand,
+            shoe,
             discards,
         }
     }
@@ -28,9 +30,9 @@ impl Dealer {
             if let Some(card) = self.shoe.deal() {
                 hand.add_card(card);
                 return;
-            } else {
-                self.shuffle();
             }
+
+            self.shuffle();
         }
     }
 
@@ -39,9 +41,9 @@ impl Dealer {
             if let Some(card) = self.shoe.deal() {
                 self.hand.push(card);
                 return;
-            } else {
-                self.shuffle();
             }
+
+            self.shuffle();
         }
     }
 
@@ -53,6 +55,7 @@ impl Dealer {
         self.discards.append(&mut self.hand);
     }
 
+    #[must_use]
     pub fn value(&self) -> u8 {
         let mut value = 0;
         let mut high_aces = 0;

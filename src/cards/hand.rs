@@ -1,16 +1,15 @@
-use crate::players::player::PlayerRef;
-
-use super::*;
+use crate::{players::player::Ref, Card, Face};
 
 #[derive(Default, Clone)]
 pub struct Hand {
     pub cards: Vec<Card>,
     pub bet: i32,
-    pub player: PlayerRef,
+    pub player: Ref,
 }
 
 impl Hand {
-    pub fn new(player: PlayerRef) -> Self {
+    #[must_use]
+    pub fn new(player: Ref) -> Self {
         Self {
             cards: vec![],
             bet: 0,
@@ -22,6 +21,7 @@ impl Hand {
         self.cards.push(card);
     }
 
+    #[must_use]
     pub fn value(&self) -> u8 {
         let mut value = 0;
         let mut high_aces = 0;
@@ -58,8 +58,14 @@ impl Hand {
         ret
     }
 
+    #[must_use]
     pub fn len(&self) -> usize {
         self.cards.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
     pub fn bet(&mut self, bet: i32) {
@@ -69,11 +75,13 @@ impl Hand {
 
 #[cfg(test)]
 mod tests {
+    use crate::Suit;
+
     use super::*;
 
     #[test]
     fn new() {
-        let hand = Hand::new(PlayerRef::default());
+        let hand = Hand::new(Ref::default());
         assert_eq!(hand.len(), 0);
     }
 
@@ -128,7 +136,7 @@ mod tests {
                 },
             ],
             bet: 0,
-            player: PlayerRef::default(),
+            player: Ref::default(),
         };
 
         assert_eq!(hand.value(), 17);
@@ -146,7 +154,7 @@ mod tests {
                 },
             ],
             bet: 0,
-            player: PlayerRef::default(),
+            player: Ref::default(),
         };
 
         assert_eq!(hand.value(), 17);
@@ -163,7 +171,7 @@ mod tests {
                 },
             ],
             bet: 0,
-            player: PlayerRef::default(),
+            player: Ref::default(),
         };
 
         assert_eq!(hand.value(), 20);
@@ -181,7 +189,7 @@ mod tests {
                 },
             ],
             bet: 0,
-            player: PlayerRef::default(),
+            player: Ref::default(),
         };
 
         assert_eq!(hand.value(), 18);
@@ -198,7 +206,7 @@ mod tests {
                 },
             ],
             bet: 0,
-            player: PlayerRef::default(),
+            player: Ref::default(),
         };
 
         assert_eq!(hand.value(), 21);
@@ -219,7 +227,7 @@ mod tests {
                 },
             ],
             bet: 0,
-            player: PlayerRef::default(),
+            player: Ref::default(),
         };
 
         assert_eq!(hand.value(), 21);
@@ -244,7 +252,7 @@ mod tests {
                 },
             ],
             bet: 0,
-            player: PlayerRef::default(),
+            player: Ref::default(),
         };
 
         assert_eq!(hand.value(), 13);

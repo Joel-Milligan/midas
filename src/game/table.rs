@@ -1,12 +1,14 @@
-use crate::{cards::*, players::*};
+use crate::{Action, Dealer, Hand, Player, Ref};
 
-pub struct Game {
+#[derive(Default)]
+pub struct Table {
     dealer: Dealer,
-    player: PlayerRef,
+    player: Ref,
     hands: Vec<Hand>,
 }
 
-impl Game {
+impl Table {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             dealer: Dealer::new(),
@@ -31,10 +33,9 @@ impl Game {
         for hand in &mut self.hands {
             while hand.value() < 21 {
                 match hand.player.action(hand) {
-                    PlayerAction::Hit => self.dealer.deal_to(hand),
-                    PlayerAction::Double => {}
-                    PlayerAction::Stand => break,
-                    PlayerAction::Surrender => {}
+                    Action::Hit => self.dealer.deal_to(hand),
+                    Action::Stand => break,
+                    Action::Double | Action::Surrender => {}
                 }
             }
         }
