@@ -1,8 +1,6 @@
 pub mod card;
-pub use card::*;
-
-pub mod shoe;
-pub use shoe::*;
-
 pub mod hand;
-pub use hand::*;
+pub mod shoe;
+
+pub use hand::Hand;
+pub use shoe::Shoe;

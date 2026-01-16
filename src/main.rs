@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use midas::*;
+use midas::{Game, RoundResult};
 
 fn main() {
     let num_rounds = 10_000;

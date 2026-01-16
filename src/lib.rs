@@ -1,8 +1,10 @@
+use crate::cards::Shoe;
+use crate::players::{Dealer, Player, PlayerAction};
+
 mod cards;
 mod players;
-use players::*;
 
-/// Result of a single round of blackjack from the perspective of the player.
+/// Result of a single round of blackjack
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum RoundResult {
     Blackjack,
@@ -15,14 +17,20 @@ pub enum RoundResult {
 pub struct Game {
     dealer: Dealer,
     player: Player,
+    shoe: Shoe,
 }
 
 impl Game {
-    pub fn new() -> Game {
+    pub fn new() -> Self {
         let dealer = Dealer::new();
         let player = Player::new();
+        let shoe = Shoe::new();
 
-        Game { dealer, player }
+        Self {
+            dealer,
+            player,
+            shoe,
+        }
     }
 
     pub fn round(&mut self) -> RoundResult {
@@ -30,7 +38,7 @@ impl Game {
 
         while self.player.hand.value() < 21 {
             match self.player.action() {
-                PlayerAction::Hit => self.dealer.deal_to(&mut self.player),
+                PlayerAction::Hit => self.player.hand.add_card(self.shoe.deal()),
                 PlayerAction::Stand => break,
             }
         }
@@ -39,23 +47,24 @@ impl Game {
     }
 
     fn initial_deal(&mut self) {
-        self.dealer.shuffle();
-        self.dealer.deal_to(&mut self.player);
-        self.dealer.deal_to_self();
-        self.dealer.deal_to(&mut self.player);
-        self.dealer.deal_to_self();
+        self.shoe.shuffle();
+        self.dealer.hand.add_card(self.shoe.deal());
+        self.player.hand.add_card(self.shoe.deal());
+        self.dealer.hand.add_card(self.shoe.deal());
+        self.player.hand.add_card(self.shoe.deal());
     }
 
     fn finish_round(&mut self) -> RoundResult {
         while self.dealer.hand.value() < 17 {
-            self.dealer.deal_to_self();
+            let card = self.shoe.deal();
+            self.dealer.hand.add_card(card);
         }
 
         let minimum_hand = self.player.hand.len() == 2;
         let dealer_value = self.dealer.hand.value();
         let player_value = self.player.hand.value();
 
-        self.dealer.discard_all_hands(&mut self.player);
+        self.discard_all_hands();
 
         if player_value == 21 && minimum_hand {
             RoundResult::Blackjack
@@ -68,5 +77,10 @@ impl Game {
         } else {
             RoundResult::Push
         }
+    }
+
+    pub fn discard_all_hands(&mut self) {
+        self.shoe.discards.append(&mut self.dealer.hand.0);
+        self.shoe.discards.append(&mut self.player.hand.0);
     }
 }

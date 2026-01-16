@@ -1,7 +1,7 @@
-use super::*;
+use super::card::{Card, Face};
 
 #[derive(Clone)]
-pub struct Hand(Vec<Card>);
+pub struct Hand(pub Vec<Card>);
 
 impl Hand {
     pub fn new() -> Hand {
@@ -17,34 +17,29 @@ impl Hand {
         let mut aces = 0;
 
         for card in &self.0 {
-            match card.face {
+            value += match card.face {
                 Face::Ace => {
-                    value += 11;
                     aces += 1;
+                    11
                 }
-                Face::Two => value += 2,
-                Face::Three => value += 3,
-                Face::Four => value += 4,
-                Face::Five => value += 5,
-                Face::Six => value += 6,
-                Face::Seven => value += 7,
-                Face::Eight => value += 8,
-                Face::Nine => value += 9,
-                Face::Ten | Face::Jack | Face::Queen | Face::King => value += 10,
+                Face::Two => 2,
+                Face::Three => 3,
+                Face::Four => 4,
+                Face::Five => 5,
+                Face::Six => 6,
+                Face::Seven => 7,
+                Face::Eight => 8,
+                Face::Nine => 9,
+                Face::Ten | Face::Jack | Face::Queen | Face::King => 10,
             }
         }
 
         while value > 21 && aces > 0 {
             value -= 10;
+            aces -= 1;
         }
 
         value
-    }
-
-    pub fn discard_hand(&mut self) -> Vec<Card> {
-        let ret = self.0.clone();
-        self.0.clear();
-        ret
     }
 
     pub fn len(&self) -> usize {
@@ -54,6 +49,8 @@ impl Hand {
 
 #[cfg(test)]
 mod tests {
+    use crate::cards::card::Suit;
+
     use super::*;
 
     #[test]
@@ -200,62 +197,5 @@ mod tests {
         ]);
 
         assert_eq!(hand.value(), 13);
-    }
-
-    #[test]
-    fn discard_hand() {
-        let mut hand = Hand::new();
-
-        hand.add_card(Card {
-            suit: Suit::Diamond,
-            face: Face::Eight,
-        });
-
-        let discard = hand.discard_hand();
-
-        assert_eq!(hand.0.len(), 0);
-        assert_eq!(discard.len(), 1);
-        assert_eq!(
-            discard,
-            vec![Card {
-                suit: Suit::Diamond,
-                face: Face::Eight
-            }]
-        );
-
-        hand.add_card(Card {
-            suit: Suit::Club,
-            face: Face::Jack,
-        });
-        hand.add_card(Card {
-            suit: Suit::Spade,
-            face: Face::Three,
-        });
-        hand.add_card(Card {
-            suit: Suit::Club,
-            face: Face::Ace,
-        });
-
-        let discard = hand.discard_hand();
-
-        assert_eq!(hand.0.len(), 0);
-        assert_eq!(discard.len(), 3);
-        assert_eq!(
-            discard,
-            vec![
-                Card {
-                    suit: Suit::Club,
-                    face: Face::Jack
-                },
-                Card {
-                    suit: Suit::Spade,
-                    face: Face::Three
-                },
-                Card {
-                    suit: Suit::Club,
-                    face: Face::Ace
-                },
-            ]
-        );
     }
 }

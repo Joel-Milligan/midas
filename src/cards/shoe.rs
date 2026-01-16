@@ -1,30 +1,40 @@
-use super::*;
 use rand::prelude::SliceRandom;
 use rand::rng;
 
+use super::card::{Card, Face, Suit};
+
 pub struct Shoe {
     cards: Vec<Card>,
+    pub discards: Vec<Card>,
 }
 
 impl Shoe {
-    pub fn new() -> Shoe {
+    pub fn new() -> Self {
         let mut cards = Vec::new();
-
         for suit in Suit::VARIANTS {
             for face in Face::VARIANTS {
                 cards.push(Card { suit, face });
             }
         }
 
-        Shoe { cards }
+        let discards = Vec::new();
+
+        Self { cards, discards }
     }
 
-    pub fn deal(&mut self) -> Option<Card> {
-        self.cards.pop()
+    pub fn deal(&mut self) -> Card {
+        if let Some(card) = self.cards.pop() {
+            card
+        } else {
+            self.shuffle();
+            self.cards
+                .pop()
+                .expect("Previous shuffle ensures there's at least one card")
+        }
     }
 
-    pub fn shuffle(&mut self, discards: &mut Vec<Card>) {
-        self.cards.append(discards);
+    pub fn shuffle(&mut self) {
+        self.cards.append(&mut self.discards);
         let mut rng = rng();
         self.cards.shuffle(&mut rng);
     }
@@ -39,37 +49,25 @@ mod tests {
         let mut shoe = Shoe::new();
 
         assert_eq!(
-            shoe.deal().unwrap(),
+            shoe.deal(),
             Card {
                 suit: Suit::Spade,
                 face: Face::King
             }
         );
         assert_eq!(
-            shoe.deal().unwrap(),
+            shoe.deal(),
             Card {
                 suit: Suit::Spade,
                 face: Face::Queen
             }
         );
         assert_eq!(
-            shoe.deal().unwrap(),
+            shoe.deal(),
             Card {
                 suit: Suit::Spade,
                 face: Face::Jack
             }
         );
-    }
-
-    #[test]
-    fn deal_until_empty() {
-        let mut shoe = Shoe::new();
-
-        // Empty the shoe
-        for _ in 0..52 {
-            shoe.deal();
-        }
-
-        assert_eq!(shoe.deal(), None);
     }
 }
