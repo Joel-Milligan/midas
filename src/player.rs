@@ -1,8 +1,10 @@
+use crate::cards::Card;
 use crate::cards::Hand;
 
 pub enum PlayerAction {
     Hit,
     Stand,
+    Double,
 }
 
 #[derive(Clone)]
@@ -26,7 +28,14 @@ impl Player {
         10.
     }
 
-    pub fn action(&self) -> PlayerAction {
+    pub fn action(&self, _dealer_card: &Card) -> PlayerAction {
+        // Potential doubles
+        if self.hand.len() == 2 {
+            if self.hand.value() == 11 {
+                return PlayerAction::Double;
+            }
+        }
+
         if self.hand.value() < self.cutoff {
             PlayerAction::Hit
         } else {
