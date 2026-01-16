@@ -1,28 +1,46 @@
 use std::collections::HashMap;
 
-use midas::{Game, RoundResult};
+use midas::{Game, Player, RoundResult};
 
 fn main() {
-    let num_rounds = 10_000;
-    let mut game = Game::new();
-    let mut results = HashMap::new();
+    for cutoff in 0..=21 {
+        let mut total_lasted = 0;
+        for _ in 0..1000 {
+            let mut num_rounds = 0;
+            let player = Player::new(cutoff);
+            let mut game = Game::new(player);
 
-    results.insert(RoundResult::Blackjack, 0);
-    results.insert(RoundResult::Bust, 0);
-    results.insert(RoundResult::Lose, 0);
-    results.insert(RoundResult::Push, 0);
-    results.insert(RoundResult::Win, 0);
+            let mut results = HashMap::new();
+            results.insert(RoundResult::Bust, 0);
+            results.insert(RoundResult::Lose, 0);
+            results.insert(RoundResult::Push, 0);
+            results.insert(RoundResult::Win, 0);
+            results.insert(RoundResult::Blackjack, 0);
 
-    for _ in 0..num_rounds {
-        let round = game.round();
-        *results.get_mut(&round).unwrap() += 1;
-    }
+            while game.player.balance >= 10. {
+                let round = game.round();
+                *results.get_mut(&round).unwrap() += 1;
+                num_rounds += 1;
+            }
 
-    let mut results = results.into_iter().collect::<Vec<_>>();
-    results.sort_by_key(|x| x.1);
+            total_lasted += num_rounds;
 
-    for (result, times) in results {
-        let percent = (times as f32 / num_rounds as f32) * 100.0;
-        println!("{result:?}:    \t{percent:.0}%");
+            let wins = *results.get(&RoundResult::Blackjack).unwrap()
+                + *results.get(&RoundResult::Win).unwrap();
+            let win_percent = (wins as f32 / num_rounds as f32) * 100.;
+            let draws = *results.get(&RoundResult::Push).unwrap();
+            let draw_percent = (draws as f32 / num_rounds as f32) * 100.;
+            let losses = *results.get(&RoundResult::Lose).unwrap()
+                + *results.get(&RoundResult::Bust).unwrap();
+            let loss_percent = (losses as f32 / num_rounds as f32) * 100.;
+            println!(
+                "\t{num_rounds} rounds:\t{win_percent:.0}(W)\t{draw_percent:.0}(D)\t{loss_percent:.0}(L)",
+            );
+        }
+        println!(
+            "Cutoff of {:0>2} lasted an average of {} rounds.",
+            cutoff,
+            total_lasted / 1000
+        );
     }
 }
