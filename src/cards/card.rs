@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Suit {
     Club,
@@ -45,8 +47,14 @@ impl Face {
     ];
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Card {
     pub suit: Suit,
     pub face: Face,
+}
+
+impl Debug for Card {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.face)
+    }
 }

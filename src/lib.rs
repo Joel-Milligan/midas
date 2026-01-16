@@ -3,8 +3,7 @@ pub mod game;
 mod player;
 
 pub use game::Game;
-pub use player::Player;
-pub use player::SimpleAi;
+pub use player::{Human, Player, SimpleAi};
 
 /// Result of a single round of blackjack
 #[derive(Debug, PartialEq, Eq, Hash)]

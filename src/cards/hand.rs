@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::card::{Card, Face};
 
 #[derive(Debug, Clone)]
@@ -46,6 +48,12 @@ impl Hand {
 
     pub fn is_pair(&self) -> bool {
         self.cards.len() == 2 && self.cards[0].face == self.cards[1].face
+    }
+}
+
+impl Display for Hand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.cards)
     }
 }
 
