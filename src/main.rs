@@ -18,8 +18,11 @@ fn main() {
         *results.get_mut(&round).unwrap() += 1;
     }
 
+    let mut results = results.into_iter().collect::<Vec<_>>();
+    results.sort_by_key(|x| x.1);
+
     for (result, times) in results {
         let percent = (times as f32 / num_rounds as f32) * 100.0;
-        println!("{result:?}: {percent:.0}");
+        println!("{result:?}:    \t{percent:.0}%");
     }
 }
