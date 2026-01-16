@@ -1,7 +1,6 @@
 use super::*;
-use enum_iterator::IntoEnumIterator;
 use rand::prelude::SliceRandom;
-use rand::thread_rng;
+use rand::rng;
 
 pub struct Shoe {
     cards: Vec<Card>,
@@ -11,8 +10,8 @@ impl Shoe {
     pub fn new() -> Shoe {
         let mut cards = Vec::new();
 
-        for suit in Suit::into_enum_iter() {
-            for face in Face::into_enum_iter() {
+        for suit in Suit::VARIANTS {
+            for face in Face::VARIANTS {
                 cards.push(Card { suit, face });
             }
         }
@@ -26,7 +25,7 @@ impl Shoe {
 
     pub fn shuffle(&mut self, discards: &mut Vec<Card>) {
         self.cards.append(discards);
-        let mut rng = thread_rng();
+        let mut rng = rng();
         self.cards.shuffle(&mut rng);
     }
 }
