@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use midas::{Game, Player, RoundResult};
+use midas::{SimpleAi, Game, Player, RoundResult};
 
 fn main() {
     for cutoff in 0..=21 {
         let mut total_lasted = 0;
         for _ in 0..10_000 {
             let mut num_rounds = 0;
-            let player = Player::new(cutoff);
+            let player = SimpleAi::new(cutoff);
             let mut game = Game::new(player);
 
             let mut results = HashMap::new();
@@ -17,7 +17,7 @@ fn main() {
             results.insert(RoundResult::Win, 0);
             results.insert(RoundResult::Blackjack, 0);
 
-            while game.player.balance >= 10. {
+            while game.player.balance() >= 10. {
                 let round_results = game.round();
                 for result in round_results {
                     *results.get_mut(&result).unwrap() += 1;

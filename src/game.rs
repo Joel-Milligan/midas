@@ -1,17 +1,18 @@
 use crate::RoundResult;
 use crate::cards::{Hand, Shoe};
-use crate::player::{Player, PlayerAction};
+use crate::player;
+use crate::player::Player;
 
-pub struct Game {
+pub struct Game<P: Player> {
     dealer_hand: Hand,
-    pub player: Player,
+    pub player: P,
     hands: Vec<Hand>,
     shoe: Shoe,
     pots: Vec<f32>, // TODO: Pots are tied by index to hands
 }
 
-impl Game {
-    pub fn new(player: Player) -> Self {
+impl<P: Player> Game<P> {
+    pub fn new(player: P) -> Self {
         let dealer_hand = Hand::new();
         let shoe = Shoe::new();
 
@@ -36,16 +37,16 @@ impl Game {
         while i < self.hands.len() {
             while self.hands[i].value() < 21 {
                 match self.player.action(&self.hands[i], shown) {
-                    PlayerAction::Hit => self.hands[i].add_card(self.shoe.deal()),
-                    PlayerAction::Stand => break,
-                    PlayerAction::Double => {
+                    player::Action::Hit => self.hands[i].add_card(self.shoe.deal()),
+                    player::Action::Stand => break,
+                    player::Action::Double => {
                         assert_eq!(self.hands[i].cards.len(), 2);
-                        self.player.balance -= self.pots[i];
+                        self.player.deduct(self.pots[i]);
                         self.pots[i] *= 2.;
                         self.hands[i].add_card(self.shoe.deal());
                         break;
                     }
-                    PlayerAction::Split => {
+                    player::Action::Split => {
                         assert!(self.hands[i].is_pair());
                         self.pots.push(self.player.bet());
                         let second_card = self.hands[i]
@@ -101,12 +102,13 @@ impl Game {
             };
 
             // Update player's cash stack with any winnings
-            self.player.balance += match result {
+            let winnings = match result {
                 RoundResult::Blackjack => self.pots[i] * 2.5,
                 RoundResult::Win => self.pots[i] * 2.,
                 RoundResult::Push => self.pots[i],
                 _ => 0.,
             };
+            self.player.win(winnings);
 
             results.push(result);
         }
