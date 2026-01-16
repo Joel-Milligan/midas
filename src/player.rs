@@ -5,11 +5,11 @@ pub enum PlayerAction {
     Hit,
     Stand,
     Double,
+    Split,
 }
 
 #[derive(Clone)]
 pub struct Player {
-    pub hand: Hand,
     pub balance: f32,
     cutoff: u8,
 }
@@ -17,7 +17,6 @@ pub struct Player {
 impl Player {
     pub fn new(cutoff: u8) -> Player {
         Player {
-            hand: Hand::new(),
             balance: 100.,
             cutoff,
         }
@@ -28,15 +27,18 @@ impl Player {
         10.
     }
 
-    pub fn action(&self, _dealer_card: &Card) -> PlayerAction {
-        // Potential doubles
-        if self.hand.len() == 2 {
-            if self.hand.value() == 11 {
+    pub fn action(&self, hand: &Hand, _dealer_card: &Card) -> PlayerAction {
+        if hand.cards.len() == 2 {
+            if hand.is_pair() {
+                return PlayerAction::Split;
+            }
+
+            if hand.value() == 11 {
                 return PlayerAction::Double;
             }
         }
 
-        if self.hand.value() < self.cutoff {
+        if hand.value() < self.cutoff {
             PlayerAction::Hit
         } else {
             PlayerAction::Stand

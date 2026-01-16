@@ -18,9 +18,11 @@ fn main() {
             results.insert(RoundResult::Blackjack, 0);
 
             while game.player.balance >= 10. {
-                let round = game.round();
-                *results.get_mut(&round).unwrap() += 1;
-                num_rounds += 1;
+                let round_results = game.round();
+                for result in round_results {
+                    *results.get_mut(&result).unwrap() += 1;
+                    num_rounds += 1;
+                }
             }
 
             total_lasted += num_rounds;

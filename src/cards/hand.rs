@@ -1,22 +1,24 @@
 use super::card::{Card, Face};
 
-#[derive(Clone)]
-pub struct Hand(pub Vec<Card>);
+#[derive(Debug, Clone)]
+pub struct Hand {
+    pub cards: Vec<Card>,
+}
 
 impl Hand {
-    pub fn new() -> Hand {
-        Hand(Vec::new())
+    pub fn new() -> Self {
+        Self { cards: vec![] }
     }
 
     pub fn add_card(&mut self, card: Card) {
-        self.0.push(card);
+        self.cards.push(card);
     }
 
     pub fn value(&self) -> u8 {
         let mut value = 0;
         let mut aces = 0;
 
-        for card in &self.0 {
+        for card in &self.cards {
             value += match card.face {
                 Face::Ace => {
                     aces += 1;
@@ -42,8 +44,8 @@ impl Hand {
         value
     }
 
-    pub fn len(&self) -> usize {
-        self.0.len()
+    pub fn is_pair(&self) -> bool {
+        self.cards.len() == 2 && self.cards[0].face == self.cards[1].face
     }
 }
 
@@ -56,8 +58,7 @@ mod tests {
     #[test]
     fn new() {
         let hand = Hand::new();
-
-        assert_eq!(hand.0.len(), 0);
+        assert_eq!(hand.cards.len(), 0);
     }
 
     #[test]
@@ -74,9 +75,9 @@ mod tests {
             face: Face::King,
         });
 
-        assert_eq!(hand.0.len(), 2);
+        assert_eq!(hand.cards.len(), 2);
         assert_eq!(
-            hand.0,
+            hand.cards,
             vec![
                 Card {
                     suit: Suit::Spade,
@@ -93,109 +94,116 @@ mod tests {
     #[test]
     fn value() {
         // Normal
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Seven,
-            },
-        ]);
-
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Seven,
+                },
+            ],
+        };
         assert_eq!(hand.value(), 17);
 
         // Royal
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Jack,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Seven,
-            },
-        ]);
-
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Jack,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Seven,
+                },
+            ],
+        };
         assert_eq!(hand.value(), 17);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Jack,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Queen,
-            },
-        ]);
-
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Jack,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Queen,
+                },
+            ],
+        };
         assert_eq!(hand.value(), 20);
 
         // Ace
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Seven,
-            },
-        ]);
-
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Seven,
+                },
+            ],
+        };
         assert_eq!(hand.value(), 18);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Heart,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-        ]);
-
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+            ],
+        };
         assert_eq!(hand.value(), 21);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Heart,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Diamond,
-                face: Face::King,
-            },
-        ]);
-
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Diamond,
+                    face: Face::King,
+                },
+            ],
+        };
         assert_eq!(hand.value(), 21);
 
-        let hand = Hand(vec![
-            Card {
-                suit: Suit::Club,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Heart,
-                face: Face::Ace,
-            },
-            Card {
-                suit: Suit::Club,
-                face: Face::Ten,
-            },
-            Card {
-                suit: Suit::Diamond,
-                face: Face::Ace,
-            },
-        ]);
-
+        let hand = Hand {
+            cards: vec![
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Heart,
+                    face: Face::Ace,
+                },
+                Card {
+                    suit: Suit::Club,
+                    face: Face::Ten,
+                },
+                Card {
+                    suit: Suit::Diamond,
+                    face: Face::Ace,
+                },
+            ],
+        };
         assert_eq!(hand.value(), 13);
     }
 }

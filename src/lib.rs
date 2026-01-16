@@ -19,8 +19,9 @@ pub enum RoundResult {
 pub struct Game {
     dealer_hand: Hand,
     pub player: Player,
+    hands: Vec<Hand>,
     shoe: Shoe,
-    pot: f32,
+    pots: Vec<f32>, // TODO: Pots are tied by index to hands
 }
 
 impl Game {
@@ -31,34 +32,58 @@ impl Game {
         Self {
             dealer_hand,
             player,
+            hands: vec![],
             shoe,
-            pot: 0.,
+            pots: vec![0.],
         }
     }
 
-    pub fn round(&mut self) -> RoundResult {
-        self.pot = self.player.bet();
+    pub fn round(&mut self) -> Vec<RoundResult> {
+        self.pots[0] = self.player.bet();
 
         self.initial_deal();
 
-        let shown = self.dealer_hand.0.first().unwrap();
+        let shown = self.dealer_hand.cards.first().unwrap();
 
-        while self.player.hand.value() < 21 {
-            match self.player.action(shown) {
-                PlayerAction::Hit => self.player.hand.add_card(self.shoe.deal()),
-                PlayerAction::Stand => break,
-                PlayerAction::Double => {
-                    assert_eq!(self.player.hand.len(), 2);
+        // TODO: Gross hack to add split hands to the end of hands while still iterating over it
+        let mut i = 0;
+        while i < self.hands.len() {
+            while self.hands[i].value() < 21 {
+                match self.player.action(&self.hands[i], shown) {
+                    PlayerAction::Hit => self.hands[i].add_card(self.shoe.deal()),
+                    PlayerAction::Stand => break,
+                    PlayerAction::Double => {
+                        assert_eq!(self.hands[i].cards.len(), 2);
 
-                    // Double bet
-                    self.player.balance -= self.pot;
-                    self.pot *= 2.;
+                        // Double bet
+                        self.player.balance -= self.pots[i];
+                        self.pots[i] *= 2.;
 
-                    // Deal final card
-                    self.player.hand.add_card(self.shoe.deal());
-                    break;
+                        // Deal final card
+                        self.hands[i].add_card(self.shoe.deal());
+                        break;
+                    }
+                    PlayerAction::Split => {
+                        assert!(self.hands[i].is_pair());
+                        // dbg!(&self.hands);
+
+                        let mut new_hand = Hand::new();
+                        let second_card = self.hands[i]
+                            .cards
+                            .pop()
+                            .expect("Hand guaranteed to be 2 cards");
+                        new_hand.cards.push(second_card);
+
+                        self.hands[i].add_card(self.shoe.deal());
+                        new_hand.add_card(self.shoe.deal());
+
+                        self.hands.push(new_hand);
+
+                        self.pots.push(self.player.bet());
+                    }
                 }
             }
+            i += 1;
         }
 
         self.finish_round()
@@ -66,46 +91,57 @@ impl Game {
 
     fn initial_deal(&mut self) {
         self.shoe.shuffle();
-        self.player.hand.add_card(self.shoe.deal());
+        let mut player_hand = Hand::new();
+        player_hand.add_card(self.shoe.deal());
         self.dealer_hand.add_card(self.shoe.deal());
-        self.player.hand.add_card(self.shoe.deal());
+        player_hand.add_card(self.shoe.deal());
         self.dealer_hand.add_card(self.shoe.deal());
+        self.hands.push(player_hand);
     }
 
-    fn finish_round(&mut self) -> RoundResult {
+    fn finish_round(&mut self) -> Vec<RoundResult> {
         // Dealer hits until at least 17
         while self.dealer_hand.value() < 17 {
             self.dealer_hand.add_card(self.shoe.deal());
         }
-
-        // Calculate round result
         let dealer_value = self.dealer_hand.value();
-        let player_value = self.player.hand.value();
-        let result = if player_value == 21 && self.player.hand.len() == 2 {
-            RoundResult::Blackjack
-        } else if player_value > 21 {
-            RoundResult::Bust
-        } else if dealer_value > 21 || dealer_value < player_value {
-            RoundResult::Win
-        } else if dealer_value > player_value {
-            RoundResult::Lose
-        } else {
-            RoundResult::Push
-        };
 
-        // Update player's cash stack with any winnings
-        self.player.balance += match result {
-            RoundResult::Blackjack => self.pot * 2.5,
-            RoundResult::Win => self.pot * 2.,
-            RoundResult::Push => self.pot,
-            _ => 0.,
-        };
+        // Calculate round results for each hand
+        let mut results = vec![];
+
+        for (i, hand) in self.hands.iter().enumerate() {
+            let player_value = hand.value();
+            let result = if player_value == 21 && hand.cards.len() == 2 {
+                RoundResult::Blackjack
+            } else if player_value > 21 {
+                RoundResult::Bust
+            } else if dealer_value > 21 || dealer_value < player_value {
+                RoundResult::Win
+            } else if dealer_value > player_value {
+                RoundResult::Lose
+            } else {
+                RoundResult::Push
+            };
+
+            // Update player's cash stack with any winnings
+            self.player.balance += match result {
+                RoundResult::Blackjack => self.pots[i] * 2.5,
+                RoundResult::Win => self.pots[i] * 2.,
+                RoundResult::Push => self.pots[i],
+                _ => 0.,
+            };
+
+            results.push(result);
+        }
 
         // Clean up game state
-        self.pot = 0.;
-        self.shoe.discards.append(&mut self.dealer_hand.0);
-        self.shoe.discards.append(&mut self.player.hand.0);
+        self.pots = vec![0.];
+        self.shoe.discards.append(&mut self.dealer_hand.cards);
+        while let Some(mut hand) = self.hands.pop() {
+            self.shoe.discards.append(&mut hand.cards);
+        }
+        self.hands.clear();
 
-        result
+        results
     }
 }
