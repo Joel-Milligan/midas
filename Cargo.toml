@@ -5,3 +5,14 @@ edition = "2024"
 
 [dependencies]
 rand = "0.9.2"
+minifb = "0.28.0"
+systemstat = "0.2.5"
+
+[dependencies.plotters]
+default-features = false
+git = "https://github.com/plotters-rs/plotters"
+features = ["ttf", "line_series"]
+
+[dependencies.plotters-bitmap]
+default-features = false
+git = "https://github.com/plotters-rs/plotters"
