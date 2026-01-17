@@ -9,8 +9,8 @@ pub struct Human {
 }
 
 impl Player for Human {
-    fn new(balance: f32) -> impl Player {
-        Self { balance }
+    fn new(balance: f32) -> Box<dyn Player> {
+        Box::new(Self { balance })
     }
 
     fn balance(&self) -> f32 {

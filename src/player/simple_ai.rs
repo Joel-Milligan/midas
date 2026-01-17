@@ -10,11 +10,11 @@ pub struct SimpleAi {
 }
 
 impl Player for SimpleAi {
-    fn new(balance: f32) -> impl Player {
-        Self {
+    fn new(balance: f32) -> Box<dyn Player> {
+        Box::new(Self {
             balance,
             cutoff: 15,
-        }
+        })
     }
 
     fn balance(&self) -> f32 {

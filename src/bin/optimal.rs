@@ -7,8 +7,8 @@ fn main() {
     let mut total_rounds = 0;
     for _ in 0..100_000 {
         let mut num_rounds = 0;
-        let player = OptimalAi::new(100.0);
-        let mut game = Game::new(player);
+        let players = vec![OptimalAi::new(100.0)];
+        let mut game = Game::new(players);
 
         let mut results = HashMap::new();
         results.insert(RoundResult::Bust, 0);
@@ -17,7 +17,7 @@ fn main() {
         results.insert(RoundResult::Win, 0);
         results.insert(RoundResult::Blackjack, 0);
 
-        while game.player.balance() >= 10. {
+        while game.players[0].balance() >= 10. {
             let round_results = game.round();
             for result in round_results {
                 *results.get_mut(&result).unwrap() += 1;

@@ -31,14 +31,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut highest_balance = 0.0;
     let mut data = vec![];
 
-    let player = OptimalAi::new(10_000.0);
-    let mut game = Game::new(player);
+    let players = vec![OptimalAi::new(10_000.0)];
+    let mut game = Game::new(players);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for _ in 0..ROUNDS_PER_UPDATE {
-            if game.player.balance() > 0.0 {
+            if game.players[0].balance() > 0.0 {
                 let _ = game.round();
-                let new_balance = game.player.balance();
+                let new_balance = game.players[0].balance();
                 data.push(new_balance);
                 if new_balance > highest_balance {
                     highest_balance = new_balance;

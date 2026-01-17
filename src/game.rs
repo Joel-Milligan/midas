@@ -3,22 +3,22 @@ use crate::cards::{Hand, Shoe};
 use crate::player;
 use crate::player::Player;
 
-pub struct Game<P: Player> {
+pub struct Game {
     dealer_hand: Hand,
-    pub player: P,
+    pub players: Vec<Box<dyn Player>>,
     hands: Vec<Hand>,
     shoe: Shoe,
     pots: Vec<f32>, // TODO: Pots are tied by index to hands
 }
 
-impl<P: Player> Game<P> {
-    pub fn new(player: P) -> Self {
+impl Game {
+    pub fn new(players: Vec<Box<dyn Player>>) -> Self {
         let dealer_hand = Hand::new();
         let shoe = Shoe::new();
 
         Self {
             dealer_hand,
-            player,
+            players,
             hands: vec![],
             shoe,
             pots: vec![0.],
@@ -26,7 +26,7 @@ impl<P: Player> Game<P> {
     }
 
     pub fn round(&mut self) -> Vec<RoundResult> {
-        self.pots[0] = self.player.bet();
+        self.pots[0] = self.players[0].bet();
 
         self.initial_deal();
 
@@ -36,19 +36,19 @@ impl<P: Player> Game<P> {
         let mut i = 0;
         while i < self.hands.len() {
             while self.hands[i].value() < 21 {
-                match self.player.action(&self.hands[i], shown) {
+                match self.players[0].action(&self.hands[i], shown) {
                     player::Action::Hit => self.hands[i].add_card(self.shoe.deal()),
                     player::Action::Stand => break,
                     player::Action::Double => {
                         assert_eq!(self.hands[i].cards.len(), 2);
-                        self.player.deduct(self.pots[i]);
+                        self.players[0].deduct(self.pots[i]);
                         self.pots[i] *= 2.;
                         self.hands[i].add_card(self.shoe.deal());
                         break;
                     }
                     player::Action::Split => {
                         assert!(self.hands[i].is_pair());
-                        self.pots.push(self.player.bet());
+                        self.pots.push(self.players[0].bet());
                         let second_card = self.hands[i]
                             .cards
                             .pop()
@@ -107,7 +107,7 @@ impl<P: Player> Game<P> {
                 RoundResult::Push => self.pots[i],
                 _ => 0.,
             };
-            self.player.win(winnings);
+            self.players[0].win(winnings);
 
             results.push(result);
         }

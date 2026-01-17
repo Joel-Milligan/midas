@@ -10,8 +10,8 @@ pub struct OptimalAi {
 }
 
 impl Player for OptimalAi {
-    fn new(balance: f32) -> impl Player {
-        Self { balance }
+    fn new(balance: f32) -> Box<dyn Player> {
+        Box::new(Self { balance })
     }
 
     fn balance(&self) -> f32 {
