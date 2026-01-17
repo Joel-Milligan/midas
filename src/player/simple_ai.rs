@@ -5,16 +5,22 @@ use crate::player::actions::Action;
 
 #[derive(Clone)]
 pub struct SimpleAi {
+    pub id: u8,
     pub balance: f32,
     cutoff: u8,
 }
 
 impl Player for SimpleAi {
-    fn new(balance: f32) -> Box<dyn Player> {
+    fn new(id: u8, balance: f32) -> Box<dyn Player> {
         Box::new(Self {
+            id,
             balance,
             cutoff: 15,
         })
+    }
+
+    fn id(&self) -> u8 {
+        self.id
     }
 
     fn balance(&self) -> f32 {

@@ -5,12 +5,17 @@ use crate::cards::{Card, Hand};
 use crate::player::Action;
 
 pub struct Human {
+    pub id: u8,
     pub balance: f32,
 }
 
 impl Player for Human {
-    fn new(balance: f32) -> Box<dyn Player> {
-        Box::new(Self { balance })
+    fn new(id: u8, balance: f32) -> Box<dyn Player> {
+        Box::new(Self { id, balance })
+    }
+
+    fn id(&self) -> u8 {
+        self.id
     }
 
     fn balance(&self) -> f32 {

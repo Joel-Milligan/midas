@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 use midas::{Game, Human, Player};
 
 fn main() {
-    let players = vec![Human::new(100.0)];
+    let mut players = HashMap::new();
+    players.insert(0, Human::new(0, 100.0));
     let mut game = Game::new(players);
 
     loop {

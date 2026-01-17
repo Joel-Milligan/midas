@@ -1,7 +1,9 @@
+use core::f32;
 use std::borrow::{Borrow, BorrowMut};
+use std::collections::HashMap;
 use std::error::Error;
 
-use midas::{Game, OptimalAi, Player};
+use midas::{Game, OptimalAi, Player, SimpleAi};
 use minifb::{Key, Window, WindowOptions};
 use plotters::prelude::*;
 use plotters_bitmap::BitMapBackend;
@@ -15,49 +17,63 @@ mod buffer_wrapper;
 /// Lower values will cause the chart to update more smoothly,
 /// while higher values will allow more rounds to be run per second
 const ROUNDS_PER_UPDATE: usize = 100;
-const WINDOW_WIDTH: usize = 800;
-const WINDOW_HEIGHT: usize = 600;
+const WIDTH: usize = 800;
+const HEIGHT: usize = 600;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut buf = BufferWrapper::new(vec![0u32; WINDOW_WIDTH * WINDOW_HEIGHT]);
-    let mut window = Window::new(
-        "Midas",
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
-        WindowOptions::default(),
-    )
-    .unwrap();
+    let mut buf = BufferWrapper::new(vec![0u32; WIDTH * HEIGHT]);
+    let mut window = Window::new("Midas", WIDTH, HEIGHT, WindowOptions::default()).unwrap();
 
-    let mut highest_balance = 0.0;
-    let mut data = vec![];
+    let mut highest_balance = f32::MIN;
+    let mut n_rounds = 0;
 
-    let players = vec![OptimalAi::new(10_000.0)];
+    let mut data = HashMap::new();
+    data.insert(0, vec![]);
+    data.insert(1, vec![]);
+
+    let mut players = HashMap::new();
+    players.insert(0, OptimalAi::new(0, 10_000.0));
+    players.insert(1, SimpleAi::new(0, 10_000.0));
     let mut game = Game::new(players);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for _ in 0..ROUNDS_PER_UPDATE {
-            if game.players[0].balance() > 0.0 {
+            if game.players.values().any(|p| p.balance() > 0.0) {
                 let _ = game.round();
-                let new_balance = game.players[0].balance();
-                data.push(new_balance);
-                if new_balance > highest_balance {
-                    highest_balance = new_balance;
+                n_rounds += 1;
+                for (id, player) in &game.players {
+                    let balance = player.balance();
+                    if balance > 0.0 {
+                        data.get_mut(id).unwrap().push(balance);
+                        if balance > highest_balance {
+                            highest_balance = balance;
+                        }
+                    }
                 }
-            } else {
-                break;
             }
         }
-
-        update_chart(buf.borrow_mut(), &data, highest_balance)?;
-        window.update_with_buffer(buf.borrow(), WINDOW_WIDTH, WINDOW_HEIGHT)?;
+        update_chart(
+            buf.borrow_mut(),
+            &data,
+            &game.players,
+            n_rounds,
+            highest_balance,
+        )?;
+        window.update_with_buffer(buf.borrow(), WIDTH, HEIGHT)?;
     }
     Ok(())
 }
 
-fn update_chart(buf: &mut [u8], data: &[f32], highest_balance: f32) -> Result<(), Box<dyn Error>> {
+fn update_chart(
+    buf: &mut [u8],
+    data: &HashMap<u8, Vec<f32>>,
+    players: &HashMap<u8, Box<dyn Player>>,
+    max_x: usize,
+    max_y: f32,
+) -> Result<(), Box<dyn Error>> {
     let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
         buf.borrow_mut(),
-        (WINDOW_WIDTH as u32, WINDOW_HEIGHT as u32),
+        (WIDTH as u32, HEIGHT as u32),
     )
     .unwrap()
     .into_drawing_area();
@@ -69,7 +85,7 @@ fn update_chart(buf: &mut [u8], data: &[f32], highest_balance: f32) -> Result<()
         .caption("Balance over time", ("sans-serif", 30))
         .x_label_area_size(40)
         .y_label_area_size(50)
-        .build_cartesian_2d(0..data.len(), 0f32..highest_balance)?;
+        .build_cartesian_2d(0..max_x, 0.0..max_y)?;
 
     chart
         .configure_mesh()
@@ -82,13 +98,20 @@ fn update_chart(buf: &mut [u8], data: &[f32], highest_balance: f32) -> Result<()
         .axis_desc_style(("sans-serif", 15))
         .draw()?;
 
-    chart
-        .draw_series(LineSeries::new(
-            (0..).zip(data.iter()).map(|(a, b)| (a, *b)),
-            Palette99::pick(0),
-        ))?
-        .label("Optimal")
-        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], Palette99::pick(0)));
+    for id in players.keys() {
+        chart
+            .draw_series(LineSeries::new(
+                (0..).zip(data[id].iter()).map(|(a, b)| (a, *b)),
+                Palette99::pick(*id as usize),
+            ))?
+            .label(format!("Player {id}"))
+            .legend(move |(x, y)| {
+                Rectangle::new(
+                    [(x - 5, y - 5), (x + 5, y + 5)],
+                    Palette99::pick(*id as usize),
+                )
+            });
+    }
 
     chart
         .configure_series_labels()

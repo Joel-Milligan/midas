@@ -6,12 +6,17 @@ use crate::player::actions::Action;
 
 #[derive(Clone)]
 pub struct OptimalAi {
+    pub id: u8,
     pub balance: f32,
 }
 
 impl Player for OptimalAi {
-    fn new(balance: f32) -> Box<dyn Player> {
-        Box::new(Self { balance })
+    fn new(id: u8, balance: f32) -> Box<dyn Player> {
+        Box::new(Self { id, balance })
+    }
+
+    fn id(&self) -> u8 {
+        self.id
     }
 
     fn balance(&self) -> f32 {
