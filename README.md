@@ -4,7 +4,10 @@ Blackjack built in Rust
 
 ## Goals
 
-1. Human play
-2. AI with perfect play and different betting strategies
-3. Simulate many games, quickly
-4. Output results in friendly format
+1. AI with different betting strategies
+2. Simulate many games, quickly
+3. Output results in friendly format
+
+## Tasks
+
+- [ ] Implement surrender

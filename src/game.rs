@@ -86,7 +86,6 @@ impl<P: Player> Game<P> {
 
         // Calculate round results for each hand
         let mut results = vec![];
-
         for (i, hand) in self.hands.iter().enumerate() {
             let player_value = hand.value();
             let result = if player_value == 21 && hand.cards.len() == 2 {

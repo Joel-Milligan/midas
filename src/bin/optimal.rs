@@ -1,0 +1,35 @@
+use std::collections::HashMap;
+
+use midas::{Game, OptimalAi, Player, RoundResult, save_results_to_csv};
+
+fn main() {
+    let mut all_results = vec![];
+    let mut total_rounds = 0;
+    for _ in 0..100_000 {
+        let mut num_rounds = 0;
+        let player = OptimalAi::new();
+        let mut game = Game::new(player);
+
+        let mut results = HashMap::new();
+        results.insert(RoundResult::Bust, 0);
+        results.insert(RoundResult::Lose, 0);
+        results.insert(RoundResult::Push, 0);
+        results.insert(RoundResult::Win, 0);
+        results.insert(RoundResult::Blackjack, 0);
+
+        while game.player.balance() >= 10. {
+            let round_results = game.round();
+            for result in round_results {
+                *results.get_mut(&result).unwrap() += 1;
+                num_rounds += 1;
+            }
+        }
+
+        total_rounds += num_rounds;
+        // print_round_results(&results, num_rounds);
+        all_results.push(results);
+    }
+
+    save_results_to_csv(all_results);
+    println!("Average of {} rounds.", total_rounds / 100_000);
+}

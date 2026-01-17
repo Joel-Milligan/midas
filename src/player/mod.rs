@@ -1,9 +1,11 @@
 mod actions;
 mod human;
+mod optimal_ai;
 mod simple_ai;
 
 pub use actions::Action;
 pub use human::Human;
+pub use optimal_ai::OptimalAi;
 pub use simple_ai::SimpleAi;
 
 use crate::cards::{Card, Hand};

@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
-use midas::{Game, Player, RoundResult, SimpleAi};
+use midas::{Game, Player, RoundResult, SimpleAi, save_results_to_csv};
 
 fn main() {
+    let mut all_results = vec![];
     let mut total_rounds = 0;
     for _ in 0..100_000 {
         let mut num_rounds = 0;
@@ -25,22 +26,10 @@ fn main() {
         }
 
         total_rounds += num_rounds;
-        print_round_results(results, num_rounds);
+        // print_round_results(&results, num_rounds);
+        all_results.push(results);
     }
 
+    save_results_to_csv(all_results);
     println!("Average of {} rounds.", total_rounds / 100_000);
-}
-
-fn print_round_results(results: HashMap<RoundResult, i32>, num_rounds: i32) {
-    let wins =
-        *results.get(&RoundResult::Blackjack).unwrap() + *results.get(&RoundResult::Win).unwrap();
-    let win_percent = (wins as f32 / num_rounds as f32) * 100.;
-    let draws = *results.get(&RoundResult::Push).unwrap();
-    let draw_percent = (draws as f32 / num_rounds as f32) * 100.;
-    let losses =
-        *results.get(&RoundResult::Lose).unwrap() + *results.get(&RoundResult::Bust).unwrap();
-    let loss_percent = (losses as f32 / num_rounds as f32) * 100.;
-    println!(
-        "{num_rounds: <4} rounds: {win_percent: >2.0}(W) {draw_percent: >2.0}(D) {loss_percent: >3.0}(L)",
-    );
 }

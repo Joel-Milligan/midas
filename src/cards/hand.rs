@@ -49,6 +49,36 @@ impl Hand {
     pub fn is_pair(&self) -> bool {
         self.cards.len() == 2 && self.cards[0].face == self.cards[1].face
     }
+
+    pub fn is_soft(&self) -> bool {
+        let mut value = 0;
+        let mut aces = 0;
+
+        for card in &self.cards {
+            value += match card.face {
+                Face::Ace => {
+                    aces += 1;
+                    11
+                }
+                Face::Two => 2,
+                Face::Three => 3,
+                Face::Four => 4,
+                Face::Five => 5,
+                Face::Six => 6,
+                Face::Seven => 7,
+                Face::Eight => 8,
+                Face::Nine => 9,
+                Face::Ten | Face::Jack | Face::Queen | Face::King => 10,
+            }
+        }
+
+        while value > 21 && aces > 0 {
+            value -= 10;
+            aces -= 1;
+        }
+
+        aces > 0
+    }
 }
 
 impl Display for Hand {
