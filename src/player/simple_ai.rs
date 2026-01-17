@@ -10,9 +10,9 @@ pub struct SimpleAi {
 }
 
 impl Player for SimpleAi {
-    fn new() -> impl Player {
+    fn new(balance: f32) -> impl Player {
         Self {
-            balance: 100.,
+            balance,
             cutoff: 15,
         }
     }

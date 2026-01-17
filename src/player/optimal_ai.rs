@@ -10,8 +10,8 @@ pub struct OptimalAi {
 }
 
 impl Player for OptimalAi {
-    fn new() -> impl Player {
-        Self { balance: 100. }
+    fn new(balance: f32) -> impl Player {
+        Self { balance }
     }
 
     fn balance(&self) -> f32 {
@@ -50,28 +50,25 @@ fn should_split(pair_face: Face, dealer_face: Face) -> bool {
     match pair_face {
         Face::Ace | Face::Eight => true,
         Face::Ten | Face::King | Face::Queen | Face::Jack | Face::Five => false,
-        Face::Nine => match dealer_face {
+        Face::Nine => matches!(
+            dealer_face,
             Face::Nine
-            | Face::Eight
-            | Face::Six
-            | Face::Five
-            | Face::Four
-            | Face::Three
-            | Face::Two => true,
-            _ => false,
-        },
-        Face::Seven => match dealer_face {
-            Face::Seven | Face::Six | Face::Five | Face::Four | Face::Three | Face::Two => true,
-            _ => false,
-        },
-        Face::Six | Face::Three | Face::Two => match dealer_face {
-            Face::Six | Face::Five | Face::Four | Face::Three | Face::Two => true,
-            _ => false,
-        },
-        Face::Four => match dealer_face {
-            Face::Five | Face::Four => true,
-            _ => false,
-        },
+                | Face::Eight
+                | Face::Six
+                | Face::Five
+                | Face::Four
+                | Face::Three
+                | Face::Two
+        ),
+        Face::Seven => matches!(
+            dealer_face,
+            Face::Seven | Face::Six | Face::Five | Face::Four | Face::Three | Face::Two
+        ),
+        Face::Six | Face::Three | Face::Two => matches!(
+            dealer_face,
+            Face::Six | Face::Five | Face::Four | Face::Three | Face::Two
+        ),
+        Face::Four => matches!(dealer_face, Face::Five | Face::Four),
     }
 }
 
@@ -137,8 +134,8 @@ fn get_soft_total_action(hand_value: u8, initial_cards: bool, dealer_face: Face)
 
 fn get_hard_total_action(hand_value: u8, initial_cards: bool, dealer_face: Face) -> Action {
     match hand_value {
-        20 | 19 | 18 | 17 => Action::Stand,
-        16 | 15 | 14 | 13 => match dealer_face {
+        17..=20 => Action::Stand,
+        13..=16 => match dealer_face {
             Face::Six | Face::Five | Face::Four | Face::Three | Face::Two => Action::Stand,
             _ => Action::Hit,
         },

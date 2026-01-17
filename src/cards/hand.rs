@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use super::card::{Card, Face};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Hand {
     pub cards: Vec<Card>,
 }

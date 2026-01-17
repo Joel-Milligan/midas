@@ -7,7 +7,7 @@ fn main() {
     let mut total_rounds = 0;
     for _ in 0..100_000 {
         let mut num_rounds = 0;
-        let player = OptimalAi::new();
+        let player = OptimalAi::new(100.0);
         let mut game = Game::new(player);
 
         let mut results = HashMap::new();

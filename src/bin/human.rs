@@ -1,7 +1,7 @@
 use midas::{Game, Human, Player};
 
 fn main() {
-    let player = Human::new();
+    let player = Human::new(100.0);
     let mut game = Game::new(player);
 
     loop {

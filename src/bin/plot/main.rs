@@ -31,7 +31,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut highest_balance = 0.0;
     let mut data = vec![];
 
-    let player = OptimalAi::new();
+    let player = OptimalAi::new(10_000.0);
     let mut game = Game::new(player);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
@@ -54,11 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn update_chart(
-    buf: &mut [u8],
-    data: &Vec<f32>,
-    highest_balance: f32,
-) -> Result<(), Box<dyn Error>> {
+fn update_chart(buf: &mut [u8], data: &[f32], highest_balance: f32) -> Result<(), Box<dyn Error>> {
     let root = BitMapBackend::<BGRXPixel>::with_buffer_and_format(
         buf.borrow_mut(),
         (WINDOW_WIDTH as u32, WINDOW_HEIGHT as u32),
@@ -89,17 +85,15 @@ fn update_chart(
     chart
         .draw_series(LineSeries::new(
             (0..).zip(data.iter()).map(|(a, b)| (a, *b)),
-            &Palette99::pick(0),
+            Palette99::pick(0),
         ))?
         .label("Optimal")
-        .legend(move |(x, y)| {
-            Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &Palette99::pick(0))
-        });
+        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], Palette99::pick(0)));
 
     chart
         .configure_series_labels()
-        .background_style(&WHITE.mix(0.8))
-        .border_style(&BLACK)
+        .background_style(WHITE.mix(0.8))
+        .border_style(BLACK)
         .draw()?;
 
     Ok(())

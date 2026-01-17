@@ -11,7 +11,7 @@ pub use simple_ai::SimpleAi;
 use crate::cards::{Card, Hand};
 
 pub trait Player {
-    fn new() -> impl Player;
+    fn new(starting_balance: f32) -> impl Player;
     fn balance(&self) -> f32;
     fn bet(&mut self) -> f32;
     fn deduct(&mut self, amount: f32);

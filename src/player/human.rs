@@ -9,8 +9,8 @@ pub struct Human {
 }
 
 impl Player for Human {
-    fn new() -> impl Player {
-        Self { balance: 100. }
+    fn new(balance: f32) -> impl Player {
+        Self { balance }
     }
 
     fn balance(&self) -> f32 {
