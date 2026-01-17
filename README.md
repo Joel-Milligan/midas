@@ -10,4 +10,8 @@ Blackjack built in Rust
 
 ## Tasks
 
-- [ ] Implement surrender
+- [ ] Multiple players at a table
+- [ ] Betting strategies 
+  - [ ] Independent of action strategies
+- [ ] Surrender
+- [ ] Configurable house rules
