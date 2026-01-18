@@ -45,6 +45,21 @@ impl Face {
         Self::Queen,
         Self::King,
     ];
+
+    pub fn value(&self) -> u8 {
+        match self {
+            Face::Ace => 11,
+            Face::Two => 2,
+            Face::Three => 3,
+            Face::Four => 4,
+            Face::Five => 5,
+            Face::Six => 6,
+            Face::Seven => 7,
+            Face::Eight => 8,
+            Face::Nine => 9,
+            Face::Ten | Face::Jack | Face::Queen | Face::King => 10,
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]

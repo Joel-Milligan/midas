@@ -47,7 +47,7 @@ impl Hand {
     }
 
     pub fn is_pair(&self) -> bool {
-        self.cards.len() == 2 && self.cards[0].face == self.cards[1].face
+        self.cards.len() == 2 && self.cards[0].face.value() == self.cards[1].face.value()
     }
 
     pub fn is_soft(&self) -> bool {
