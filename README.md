@@ -1,6 +1,6 @@
 # Midas
 
-Blackjack built in Rust
+Blackjack simulator built in Rust
 
 ## Goals
 
@@ -10,8 +10,14 @@ Blackjack built in Rust
 
 ## Tasks
 
-- [ ] Multiple players at a table
-- [ ] Betting strategies 
-  - [ ] Independent of action strategies
+- [x] Multiple players at a table
+- [x] Betting strategies 
+  - [x] Independent of action strategies
+  - [ ] Simple card counting
+  - [ ] Perfect card counting
 - [ ] Surrender
 - [ ] Configurable house rules
+  - [ ] Number of decks
+  - [ ] Shoe shuffle cutoff point
+  - [ ] Dealer hitting behaviour (e.g. hit on soft 17)
+  - [ ] Different blackjack payout rates

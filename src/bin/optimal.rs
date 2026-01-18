@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use midas::{Game, OptimalActionStrategy, Player, RoundResult, save_results_to_csv};
+use midas::{
+    FlatBettingStrategy, Game, OptimalActionStrategy, Player, RoundResult, save_results_to_csv,
+};
 
 fn main() {
     let mut all_results = vec![];
@@ -8,7 +10,12 @@ fn main() {
     for _ in 0..100_000 {
         let mut num_rounds = 0;
         let mut players = HashMap::new();
-        let optimal_ai = Player::new(0, 100.0, Box::new(OptimalActionStrategy));
+        let optimal_ai = Player::new(
+            0,
+            100.0,
+            Box::new(FlatBettingStrategy),
+            Box::new(OptimalActionStrategy),
+        );
         players.insert(0, optimal_ai);
         let mut game = Game::new(players);
 

@@ -3,7 +3,7 @@ use std::borrow::{Borrow, BorrowMut};
 use std::collections::HashMap;
 use std::error::Error;
 
-use midas::{Game, OptimalActionStrategy, Player, SimpleActionStrategy};
+use midas::{FlatBettingStrategy, Game, OptimalActionStrategy, Player, SimpleActionStrategy};
 use minifb::{Key, Window, WindowOptions};
 use plotters::prelude::*;
 use plotters_bitmap::BitMapBackend;
@@ -28,8 +28,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut n_rounds = 0;
 
     let mut players = HashMap::new();
-    players.insert(0, Player::new(0, 10_000.0, Box::new(OptimalActionStrategy)));
-    players.insert(1, Player::new(0, 10_000.0, Box::new(SimpleActionStrategy)));
+    players.insert(
+        0,
+        Player::new(
+            0,
+            10_000.0,
+            Box::new(FlatBettingStrategy),
+            Box::new(OptimalActionStrategy),
+        ),
+    );
+    players.insert(
+        1,
+        Player::new(
+            0,
+            10_000.0,
+            Box::new(FlatBettingStrategy),
+            Box::new(SimpleActionStrategy),
+        ),
+    );
     let mut game = Game::new(players);
 
     let mut data = HashMap::new();

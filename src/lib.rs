@@ -3,11 +3,13 @@ mod cards;
 mod game;
 mod player;
 
+use std::collections::HashMap;
 use std::fmt::Write;
+use std::fs;
 use std::str::FromStr;
-use std::{collections::HashMap, fs};
 
-pub use ai::{HumanActionStrategy, OptimalActionStrategy, SimpleActionStrategy};
+pub use ai::action::{HumanActionStrategy, OptimalActionStrategy, SimpleActionStrategy};
+pub use ai::betting::FlatBettingStrategy;
 pub use game::Game;
 pub use player::Player;
 
