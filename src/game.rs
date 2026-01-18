@@ -16,13 +16,13 @@ pub struct ActiveHand {
 
 pub struct Game {
     shoe: Shoe,
-    pub players: HashMap<u8, Box<dyn Player>>,
+    pub players: HashMap<u8, Player>,
     dealer_hand: Hand,
     hands: Vec<ActiveHand>,
 }
 
 impl Game {
-    pub fn new(players: HashMap<u8, Box<dyn Player>>) -> Self {
+    pub fn new(players: HashMap<u8, Player>) -> Self {
         let dealer_hand = Hand::new();
         let shoe = Shoe::new();
 
@@ -60,7 +60,7 @@ impl Game {
                     }
                     Action::Double => {
                         assert_eq!(active_hand.hand.cards.len(), 2);
-                        player.deduct(active_hand.pot);
+                        player.balance -= active_hand.pot;
                         active_hand.pot *= 2.;
                         active_hand.hand.add_card(self.shoe.deal());
                         active_hand.completed = true;
@@ -152,7 +152,7 @@ impl Game {
             };
             let player = self.players.get_mut(&hand.player).unwrap();
 
-            player.win(winnings);
+            player.balance += winnings;
 
             results.push(result);
         }

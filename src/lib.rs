@@ -1,13 +1,15 @@
+mod ai;
 mod cards;
-pub mod game;
+mod game;
 mod player;
 
 use std::fmt::Write;
 use std::str::FromStr;
 use std::{collections::HashMap, fs};
 
+pub use ai::{HumanActionStrategy, OptimalActionStrategy, SimpleActionStrategy};
 pub use game::Game;
-pub use player::{Human, OptimalAi, Player, SimpleAi};
+pub use player::Player;
 
 /// Result of a single round of blackjack
 #[derive(Debug, PartialEq, Eq, Hash)]

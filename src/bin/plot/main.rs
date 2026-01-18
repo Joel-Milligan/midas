@@ -3,7 +3,7 @@ use std::borrow::{Borrow, BorrowMut};
 use std::collections::HashMap;
 use std::error::Error;
 
-use midas::{Game, OptimalAi, Player, SimpleAi};
+use midas::{Game, OptimalActionStrategy, Player, SimpleActionStrategy};
 use minifb::{Key, Window, WindowOptions};
 use plotters::prelude::*;
 use plotters_bitmap::BitMapBackend;
@@ -28,8 +28,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut n_rounds = 0;
 
     let mut players = HashMap::new();
-    players.insert(0, OptimalAi::new(0, 10_000.0));
-    players.insert(1, SimpleAi::new(0, 10_000.0));
+    players.insert(0, Player::new(0, 10_000.0, Box::new(OptimalActionStrategy)));
+    players.insert(1, Player::new(0, 10_000.0, Box::new(SimpleActionStrategy)));
     let mut game = Game::new(players);
 
     let mut data = HashMap::new();
@@ -38,11 +38,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for _ in 0..ROUNDS_PER_UPDATE {
-            if game.players.values().any(|p| p.balance() > 0.0) {
+            if game.players.values().any(|p| p.balance > 0.0) {
                 let _ = game.round();
                 n_rounds += 1;
                 for (id, player) in &game.players {
-                    let balance = player.balance();
+                    let balance = player.balance;
                     if balance > 0.0 {
                         data.get_mut(id).unwrap().push(balance);
                         if balance > highest_balance {
@@ -67,7 +67,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn update_chart(
     buf: &mut [u8],
     data: &HashMap<u8, Vec<f32>>,
-    players: &HashMap<u8, Box<dyn Player>>,
+    players: &HashMap<u8, Player>,
     max_x: usize,
     max_y: f32,
 ) -> Result<(), Box<dyn Error>> {

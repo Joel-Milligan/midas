@@ -1,41 +1,59 @@
-use crate::cards::Card;
-use crate::cards::Hand;
-use crate::cards::card::Face;
-use crate::player::Player;
-use crate::player::actions::Action;
+use std::io;
 
-#[derive(Clone)]
-pub struct OptimalAi {
-    pub id: u8,
-    pub balance: f32,
+use crate::cards::card::Face;
+use crate::cards::{Card, Hand};
+use crate::player::Action;
+
+pub trait ActionStrategy {
+    fn action(&self, hand: &Hand, dealer_card: &Card) -> Action;
 }
 
-impl Player for OptimalAi {
-    fn new(id: u8, balance: f32) -> Box<dyn Player> {
-        Box::new(Self { id, balance })
-    }
+pub struct HumanActionStrategy;
 
-    fn id(&self) -> u8 {
-        self.id
-    }
+impl ActionStrategy for HumanActionStrategy {
+    fn action(&self, hand: &Hand, dealer_card: &Card) -> Action {
+        println!("Hand: {} ({})", hand, hand.value());
+        println!("Dealer: {:?}", dealer_card);
 
-    fn balance(&self) -> f32 {
-        self.balance
+        loop {
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            match input.trim() {
+                "hit" => return Action::Hit,
+                "stand" => return Action::Stand,
+                "split" => return Action::Split,
+                "double" => return Action::Double,
+                _ => {}
+            }
+        }
     }
+}
 
-    fn bet(&mut self) -> f32 {
-        self.balance -= 10.;
-        10.
+pub struct SimpleActionStrategy;
+
+impl ActionStrategy for SimpleActionStrategy {
+    fn action(&self, hand: &Hand, _dealer_card: &Card) -> Action {
+        if hand.cards.len() == 2 {
+            if hand.is_pair() {
+                return Action::Split;
+            }
+
+            if hand.value() == 11 {
+                return Action::Double;
+            }
+        }
+
+        if hand.value() < 15 {
+            Action::Hit
+        } else {
+            Action::Stand
+        }
     }
+}
 
-    fn deduct(&mut self, amount: f32) {
-        self.balance -= amount;
-    }
+pub struct OptimalActionStrategy;
 
-    fn win(&mut self, amount: f32) {
-        self.balance += amount;
-    }
-
+impl ActionStrategy for OptimalActionStrategy {
     fn action(&self, hand: &Hand, dealer_card: &Card) -> Action {
         let initial_cards = hand.cards.len() == 2;
 

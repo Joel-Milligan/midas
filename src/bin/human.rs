@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use midas::{Game, Human, Player};
+use midas::{Game, HumanActionStrategy, Player};
 
 fn main() {
     let mut players = HashMap::new();
-    players.insert(0, Human::new(0, 100.0));
+    players.insert(0, Player::new(0, 100.0, Box::new(HumanActionStrategy)));
     let mut game = Game::new(players);
 
     loop {

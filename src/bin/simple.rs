@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use midas::{Game, Player, RoundResult, SimpleAi, save_results_to_csv};
+use midas::{Game, Player, RoundResult, SimpleActionStrategy, save_results_to_csv};
 
 fn main() {
     let mut all_results = vec![];
@@ -8,7 +8,8 @@ fn main() {
     for _ in 0..100_000 {
         let mut num_rounds = 0;
         let mut players = HashMap::new();
-        players.insert(0, SimpleAi::new(0, 100.0));
+        let simple_ai = Player::new(0, 100.0, Box::new(SimpleActionStrategy));
+        players.insert(0, simple_ai);
         let mut game = Game::new(players);
 
         let mut results = HashMap::new();
@@ -18,7 +19,7 @@ fn main() {
         results.insert(RoundResult::Win, 0);
         results.insert(RoundResult::Blackjack, 0);
 
-        while game.players.get(&0).unwrap().balance() >= 10. {
+        while game.players.get(&0).unwrap().balance >= 10. {
             let round_results = game.round();
             for result in round_results {
                 *results.get_mut(&result).unwrap() += 1;
