@@ -27,14 +27,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut highest_balance = f32::MIN;
     let mut n_rounds = 0;
 
-    let mut data = HashMap::new();
-    data.insert(0, vec![]);
-    data.insert(1, vec![]);
-
     let mut players = HashMap::new();
     players.insert(0, OptimalAi::new(0, 10_000.0));
     players.insert(1, SimpleAi::new(0, 10_000.0));
     let mut game = Game::new(players);
+
+    let mut data = HashMap::new();
+    data.insert(0, vec![]);
+    data.insert(1, vec![]);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for _ in 0..ROUNDS_PER_UPDATE {
@@ -99,12 +99,18 @@ fn update_chart(
         .draw()?;
 
     for id in players.keys() {
+        let player_name = match id {
+            0 => "Optimal AI",
+            1 => "Simple AI",
+            _ => unreachable!(),
+        };
+
         chart
             .draw_series(LineSeries::new(
                 (0..).zip(data[id].iter()).map(|(a, b)| (a, *b)),
                 Palette99::pick(*id as usize),
             ))?
-            .label(format!("Player {id}"))
+            .label(player_name)
             .legend(move |(x, y)| {
                 Rectangle::new(
                     [(x - 5, y - 5), (x + 5, y + 5)],
