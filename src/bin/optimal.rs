@@ -35,7 +35,6 @@ fn main() {
         }
 
         total_rounds += num_rounds;
-        // print_round_results(&results, num_rounds);
         all_results.push(results);
     }
 

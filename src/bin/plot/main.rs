@@ -3,7 +3,10 @@ use std::borrow::{Borrow, BorrowMut};
 use std::collections::HashMap;
 use std::error::Error;
 
-use midas::{FlatBettingStrategy, Game, OptimalActionStrategy, Player, SimpleActionStrategy};
+use midas::{
+    FlatBettingStrategy, Game, HiLoCountingStrategy, OptimalActionStrategy, Player,
+    SimpleActionStrategy,
+};
 use minifb::{Key, Window, WindowOptions};
 use plotters::prelude::*;
 use plotters_bitmap::BitMapBackend;
@@ -46,11 +49,21 @@ fn main() -> Result<(), Box<dyn Error>> {
             Box::new(SimpleActionStrategy),
         ),
     );
+    players.insert(
+        2,
+        Player::new(
+            0,
+            10_000.0,
+            Box::new(HiLoCountingStrategy::new()),
+            Box::new(SimpleActionStrategy),
+        ),
+    );
     let mut game = Game::new(players);
 
     let mut data = HashMap::new();
     data.insert(0, vec![]);
     data.insert(1, vec![]);
+    data.insert(2, vec![]);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         for _ in 0..ROUNDS_PER_UPDATE {
@@ -118,6 +131,7 @@ fn update_chart(
         let player_name = match id {
             0 => "Optimal AI",
             1 => "Simple AI",
+            2 => "HiLo AI",
             _ => unreachable!(),
         };
 

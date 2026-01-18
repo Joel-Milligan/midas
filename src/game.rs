@@ -157,11 +157,19 @@ impl Game {
             results.push(result);
         }
 
-        // Clean up game state
-        self.shoe.discards.append(&mut self.dealer_hand.cards);
+        let mut to_discard = vec![];
+        to_discard.append(&mut self.dealer_hand.cards);
         while let Some(mut hand) = self.hands.pop() {
-            self.shoe.discards.append(&mut hand.hand.cards);
+            to_discard.append(&mut hand.hand.cards);
         }
+
+        // Notify players of hands about to be discarded
+        for player in self.players.values_mut() {
+            player.notify(&to_discard);
+        }
+
+        // Clean up game state
+        self.shoe.discards.append(&mut to_discard);
         self.hands.clear();
 
         results

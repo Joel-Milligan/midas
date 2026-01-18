@@ -26,8 +26,12 @@ impl Player {
         }
     }
 
+    pub fn notify(&mut self, cards: &Vec<Card>) {
+        self.betting_strategy.update(cards);
+    }
+
     pub fn bet(&mut self) -> f32 {
-        let bet = self.betting_strategy.bet();
+        let bet = self.betting_strategy.bet(self.balance);
         self.balance -= bet;
         bet
     }

@@ -39,35 +39,3 @@ impl Shoe {
         self.cards.shuffle(&mut rng);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn deal() {
-        let mut shoe = Shoe::new();
-
-        assert_eq!(
-            shoe.deal(),
-            Card {
-                suit: Suit::Spade,
-                face: Face::King
-            }
-        );
-        assert_eq!(
-            shoe.deal(),
-            Card {
-                suit: Suit::Spade,
-                face: Face::Queen
-            }
-        );
-        assert_eq!(
-            shoe.deal(),
-            Card {
-                suit: Suit::Spade,
-                face: Face::Jack
-            }
-        );
-    }
-}

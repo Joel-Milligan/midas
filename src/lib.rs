@@ -9,7 +9,7 @@ use std::fs;
 use std::str::FromStr;
 
 pub use ai::action::{HumanActionStrategy, OptimalActionStrategy, SimpleActionStrategy};
-pub use ai::betting::FlatBettingStrategy;
+pub use ai::betting::{FlatBettingStrategy, HiLoCountingStrategy};
 pub use game::Game;
 pub use player::Player;
 

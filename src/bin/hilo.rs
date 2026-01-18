@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use midas::{
-    FlatBettingStrategy, Game, Player, RoundResult, SimpleActionStrategy, save_results_to_csv,
+    Game, HiLoCountingStrategy, OptimalActionStrategy, Player, RoundResult, save_results_to_csv,
 };
 
 fn main() {
@@ -10,13 +10,13 @@ fn main() {
     for _ in 0..100_000 {
         let mut num_rounds = 0;
         let mut players = HashMap::new();
-        let simple_ai = Player::new(
+        let optimal_ai = Player::new(
             0,
             100.0,
-            Box::new(FlatBettingStrategy),
-            Box::new(SimpleActionStrategy),
+            Box::new(HiLoCountingStrategy::new()),
+            Box::new(OptimalActionStrategy),
         );
-        players.insert(0, simple_ai);
+        players.insert(0, optimal_ai);
         let mut game = Game::new(players);
 
         let mut results = HashMap::new();
