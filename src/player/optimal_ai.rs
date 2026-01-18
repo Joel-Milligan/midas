@@ -152,7 +152,7 @@ fn get_hard_total_action(hand_value: u8, initial_cards: bool, dealer_face: Face)
             if initial_cards {
                 Action::Double
             } else {
-                Action::Stand
+                Action::Hit
             }
         }
         10 => {
@@ -162,7 +162,7 @@ fn get_hard_total_action(hand_value: u8, initial_cards: bool, dealer_face: Face)
                     _ => Action::Double,
                 }
             } else {
-                Action::Stand
+                Action::Hit
             }
         }
         9 => {
@@ -172,9 +172,9 @@ fn get_hard_total_action(hand_value: u8, initial_cards: bool, dealer_face: Face)
                     _ => Action::Hit,
                 }
             } else {
-                Action::Stand
+                Action::Hit
             }
         }
-        _ => Action::Stand,
+        _ => Action::Hit,
     }
 }
