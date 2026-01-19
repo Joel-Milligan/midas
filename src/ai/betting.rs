@@ -31,7 +31,7 @@ impl HiLoCountingStrategy {
 
 impl BettingStrategy for HiLoCountingStrategy {
     fn bet(&self, remaining: f32) -> f32 {
-        let bet = 10.0 * self.count.min(1.0);
+        let bet = 10.0 + 1.0 * self.count.max(0.0);
         if bet > remaining { remaining } else { bet }
     }
 

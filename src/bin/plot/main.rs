@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     players.insert(
         1,
         Player::new(
-            0,
+            1,
             10_000.0,
             Box::new(FlatBettingStrategy),
             Box::new(SimpleActionStrategy),
@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     players.insert(
         2,
         Player::new(
-            0,
+            2,
             10_000.0,
             Box::new(HiLoCountingStrategy::new()),
             Box::new(SimpleActionStrategy),
