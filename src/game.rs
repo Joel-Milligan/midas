@@ -67,6 +67,7 @@ impl Game {
                     }
                     Action::Split => {
                         assert!(active_hand.hand.is_pair());
+                        player.balance -= active_hand.pot;
                         let second_card = active_hand
                             .hand
                             .cards
@@ -79,15 +80,16 @@ impl Game {
                         splits.push(ActiveHand {
                             player: active_hand.player,
                             hand: new_hand,
-                            pot: player.bet(),
+                            pot: active_hand.pot,
                             blackjack: false, // Splits can never be a real blackjack
                             completed: second_card.face == Face::Ace,
                         });
-                        active_hand.completed = second_card.face == Face::Ace;
+                        active_hand.completed = second_card.face == Face::Ace; // Can only split aces once
                     }
                 }
             }
             self.hands.append(&mut splits);
+            splits.clear();
         }
         self.finish_round()
     }
