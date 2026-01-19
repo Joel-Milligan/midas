@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
 use crate::RoundResult;
 use crate::cards::card::Face;
-use crate::cards::{Hand, Shoe};
+use crate::cards::{Card, Hand, Shoe};
 use crate::player::{Action, Player};
 
 #[derive(Debug)]
@@ -16,13 +14,13 @@ pub struct ActiveHand {
 
 pub struct Game {
     shoe: Shoe,
-    pub players: HashMap<u8, Player>,
+    pub players: Vec<Player>,
     dealer_hand: Hand,
     hands: Vec<ActiveHand>,
 }
 
 impl Game {
-    pub fn new(players: HashMap<u8, Player>) -> Self {
+    pub fn new(players: Vec<Player>) -> Self {
         let dealer_hand = Hand::new();
         let shoe = Shoe::new();
 
@@ -49,12 +47,15 @@ impl Game {
 
                 let player = self
                     .players
-                    .get_mut(&active_hand.player)
+                    .iter_mut()
+                    .find(|x| x.id == active_hand.player)
                     .expect("All hands should have a valid player");
 
                 let action = player.action(&active_hand.hand, shown);
                 match action {
-                    Action::Hit => active_hand.hand.add_card(self.shoe.deal()),
+                    Action::Hit => active_hand
+                        .hand
+                        .add_card(deal(&mut self.shoe, &mut self.players)),
                     Action::Stand => {
                         active_hand.completed = true;
                     }
@@ -62,7 +63,9 @@ impl Game {
                         assert_eq!(active_hand.hand.cards.len(), 2);
                         player.balance -= active_hand.pot;
                         active_hand.pot *= 2.;
-                        active_hand.hand.add_card(self.shoe.deal());
+                        active_hand
+                            .hand
+                            .add_card(deal(&mut self.shoe, &mut self.players));
                         active_hand.completed = true;
                     }
                     Action::Split => {
@@ -75,8 +78,10 @@ impl Game {
                             .expect("Hand guaranteed to be 2 cards");
                         let mut new_hand = Hand::new();
                         new_hand.cards.push(second_card);
-                        active_hand.hand.add_card(self.shoe.deal());
-                        new_hand.add_card(self.shoe.deal());
+                        active_hand
+                            .hand
+                            .add_card(deal(&mut self.shoe, &mut self.players));
+                        new_hand.add_card(deal(&mut self.shoe, &mut self.players));
                         splits.push(ActiveHand {
                             player: active_hand.player,
                             hand: new_hand,
@@ -95,31 +100,38 @@ impl Game {
     }
 
     fn initial_deal(&mut self) {
-        self.shoe.shuffle();
+        for i in 0..self.players.len() {
+            // Don't deal in players that can't make minimum bet
+            if self.players[i].balance < 10.0 {
+                continue;
+            }
 
-        self.dealer_hand.add_card(self.shoe.deal());
-        self.dealer_hand.add_card(self.shoe.deal());
-
-        for (id, player) in &mut self.players {
-            let bet = player.bet();
-            let mut player_hand = Hand::new();
-            player_hand.add_card(self.shoe.deal());
-            player_hand.add_card(self.shoe.deal());
-            let blackjack = player_hand.value() == 21;
+            let bet = self.players[i].bet();
+            let mut hand = Hand::new();
+            hand.add_card(deal(&mut self.shoe, &mut self.players));
+            hand.add_card(deal(&mut self.shoe, &mut self.players));
+            let player = self.players[i].id;
+            let blackjack = hand.value() == 21;
             self.hands.push(ActiveHand {
-                player: *id,
-                hand: player_hand,
+                player,
+                hand,
                 pot: bet,
                 blackjack,
                 completed: false,
             });
         }
+
+        self.dealer_hand
+            .add_card(deal(&mut self.shoe, &mut self.players));
+        self.dealer_hand
+            .add_card(secret_deal(&mut self.shoe, &mut self.players));
     }
 
     fn finish_round(&mut self) -> Vec<RoundResult> {
         // Dealer hits until at least 17
         while self.dealer_hand.value() < 17 {
-            self.dealer_hand.add_card(self.shoe.deal());
+            self.dealer_hand
+                .add_card(deal(&mut self.shoe, &mut self.players));
         }
 
         let dealer_value = self.dealer_hand.value();
@@ -152,28 +164,44 @@ impl Game {
                 RoundResult::Push => hand.pot,
                 _ => 0.,
             };
-            let player = self.players.get_mut(&hand.player).unwrap();
 
-            player.balance += winnings;
+            self.players
+                .iter_mut()
+                .find(|p| p.id == hand.player)
+                .unwrap()
+                .balance += winnings;
 
             results.push(result);
         }
 
-        let mut to_discard = vec![];
-        to_discard.append(&mut self.dealer_hand.cards);
-        while let Some(mut hand) = self.hands.pop() {
-            to_discard.append(&mut hand.hand.cards);
-        }
-
-        // Notify players of hands about to be discarded
-        for player in self.players.values_mut() {
-            player.notify(&to_discard);
-        }
-
         // Clean up game state
-        self.shoe.discards.append(&mut to_discard);
+        self.shoe.discards.append(&mut self.dealer_hand.cards);
+        while let Some(mut hand) = self.hands.pop() {
+            self.shoe.discards.append(&mut hand.hand.cards);
+        }
         self.hands.clear();
 
         results
     }
+}
+
+fn deal(shoe: &mut Shoe, players: &mut Vec<Player>) -> Card {
+    let (card, shuffled) = shoe.deal();
+
+    players.iter_mut().for_each(|p| p.card_dealt(&card));
+    if shuffled {
+        players.iter_mut().for_each(|p| p.shuffled());
+    }
+
+    card
+}
+
+fn secret_deal(shoe: &mut Shoe, players: &mut Vec<Player>) -> Card {
+    let (card, shuffled) = shoe.deal();
+
+    if shuffled {
+        players.iter_mut().for_each(|p| p.shuffled());
+    }
+
+    card
 }

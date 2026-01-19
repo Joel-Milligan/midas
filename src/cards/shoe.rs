@@ -4,7 +4,7 @@ use rand::rng;
 use super::card::{Card, Face, Suit};
 
 pub struct Shoe {
-    cards: Vec<Card>,
+    pub cards: Vec<Card>,
     pub discards: Vec<Card>,
 }
 
@@ -17,23 +17,33 @@ impl Shoe {
             }
         }
 
-        let discards = Vec::new();
-
-        Self { cards, discards }
-    }
-
-    pub fn deal(&mut self) -> Card {
-        if let Some(card) = self.cards.pop() {
-            card
-        } else {
-            self.shuffle();
-            self.cards
-                .pop()
-                .expect("Previous shuffle ensures there's at least one card")
+        Self {
+            cards,
+            discards: vec![],
         }
     }
 
-    pub fn shuffle(&mut self) {
+    /// Returns dealt card and indicates whether or not the deal resulted in a shuffle
+    pub fn deal(&mut self) -> (Card, bool) {
+        if let Some(card) = self.cards.pop() {
+            (card, false)
+        } else {
+            self.shuffle();
+            (
+                self.cards.pop().expect(
+                    format!(
+                        "Shoe: {}, Discards: {}",
+                        self.cards.len(),
+                        self.discards.len()
+                    )
+                    .as_str(),
+                ),
+                true,
+            )
+        }
+    }
+
+    fn shuffle(&mut self) {
         self.cards.append(&mut self.discards);
         let mut rng = rng();
         self.cards.shuffle(&mut rng);
